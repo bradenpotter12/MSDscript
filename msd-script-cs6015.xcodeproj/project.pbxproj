@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		A274558825B7AEC700883B5C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A274558725B7AEC700883B5C /* main.cpp */; };
 		A274559525B7B7CF00883B5C /* cmdline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A274559325B7B7CF00883B5C /* cmdline.cpp */; };
+		A29072E025C1E64C00B6479F /* expr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A29072DD25C119DD00B6479F /* expr.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,6 +31,7 @@
 		A274559425B7B7CF00883B5C /* cmdline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = cmdline.hpp; sourceTree = "<group>"; };
 		A29072D425BF679600B6479F /* catch.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = catch.hpp; sourceTree = "<group>"; };
 		A29072DD25C119DD00B6479F /* expr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = expr.cpp; sourceTree = "<group>"; };
+		A29072E225C3125F00B6479F /* expr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = expr.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				A274559325B7B7CF00883B5C /* cmdline.cpp */,
 				A274559425B7B7CF00883B5C /* cmdline.hpp */,
 				A29072DD25C119DD00B6479F /* expr.cpp */,
+				A29072E225C3125F00B6479F /* expr.hpp */,
 				A29072D425BF679600B6479F /* catch.hpp */,
 			);
 			name = "msd-script-cs6015";
@@ -129,6 +132,7 @@
 			files = (
 				A274559525B7B7CF00883B5C /* cmdline.cpp in Sources */,
 				A274558825B7AEC700883B5C /* main.cpp in Sources */,
+				A29072E025C1E64C00B6479F /* expr.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
