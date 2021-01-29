@@ -1,3 +1,12 @@
+<<<<<<< HEAD
 msd-script
-/xcuserdata
+=======
+# Mac OS X
 .DS_Store
+
+# Xcode
+/xcuserdata
+
+# Project Executable 
+msd-script
+>>>>>>> work

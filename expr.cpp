@@ -6,7 +6,8 @@
 //
 
 #include <stdio.h>
-#include "cmdline.hpp"
+#include "expr.hpp"
+#include <stdexcept>
 
 // Num Constructor implementation
     Num::Num(int val) {
@@ -24,8 +25,18 @@ bool Num::equals(Expr *o) {
     }
 }
 
+// Num Interp implementation
+// Returns the value of a number if Num expression
+int Num::interp(Expr *o) {
+    Num *c = dynamic_cast<Num*>(o);
+    if (c == NULL) {
+        throw std::runtime_error("not a Num expression");
+    }
+    return this->val;
+}
+
 // Add Constructor implementation
-Add::Add(Expr *lhs, Expr *rhs) {
+Add::Add(Num *lhs, Num *rhs) {
     this->lhs = lhs;
     this->rhs = rhs;
 }
@@ -37,8 +48,15 @@ bool Add::equals(Expr *o) {
         return false;
     }
     else {
-        return ((this->lhs + this->rhs) == (c->lhs + c->rhs));
+        return (this->lhs->equals(c->lhs)) && (this->rhs->equals(c->rhs));
     }
+}
+
+// Add Interp implementation
+// Returns the sum of the subexpression values
+int Add::interp(Expr *o) {
+    
+    return 0;
 }
 
 // Mult Constructor implementation
@@ -51,11 +69,16 @@ Mult::Mult(Expr *lhs, Expr *rhs) {
 bool Mult::equals(Expr *o) {
     Mult *c = dynamic_cast<Mult*>(o);
     if (c == NULL) {
-        return false
+        return false;
     }
     else {
-        return ((this->lhs * this->rhs) == (c->lhs * c->rhs));
+        return ((this->lhs->equals(c->lhs)) && (this->rhs->equals(c->rhs) ));
     }
+}
+
+// Mult Interp implementation
+int Mult::interp(Expr *e) {
+    return 0;
 }
 
 // Variable Constructor implementation
@@ -72,6 +95,12 @@ bool Variable::equals(Expr *o) {
     else {
         return (this->string == c->string);
     }
+}
+
+// Variable Interp implementation
+int Variable::interp(Expr *e) {
+    
+    return 0;
 }
 
 
