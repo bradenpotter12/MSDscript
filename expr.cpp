@@ -55,11 +55,8 @@ bool Add::equals(Expr *o) {
 // Add Interp implementation
 // Returns the sum of the subexpression values
 int Add::interp(Expr *o) {
-    Num *c = dynamic_cast<Num*>(o);
-    if (c == NULL) {
-        throw std::runtime_error("not an Add expression");
-    }
-    return val;
+    
+    return 0;
 }
 
 // Mult Constructor implementation

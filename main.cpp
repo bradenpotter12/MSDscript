@@ -11,14 +11,23 @@
 #include "catch.hpp"
 #include "expr.hpp"
 
+TEST_CASE("Num") {
+    Num *c = new Num(3);
+    Num *b = new Num(3);
+    Num *a = new Num(5);
+    CHECK(c->val == 3);
+    CHECK(c->equals(b));
+    CHECK(c->equals(a) == false);
+}
 
+TEST_CASE("Add") {
+    
+}
 
 
 int main(int argc, const char * argv[]) {
     use_arguments(argc, argv);
-    
-    printf("Hello!\n");
-    Num *c = new Num(3);
+    Catch::Session().run();
     
     return 0;
 }
