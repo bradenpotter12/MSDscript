@@ -27,7 +27,7 @@ public:
     Expr *rhs;
     
     // constructor
-    Add(Expr *lhs, Expr *rhs);
+    Add(Num *lhs, Num *rhs);
     
     bool equals(Expr *o);
     int interp(Expr *o);

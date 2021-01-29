@@ -25,7 +25,7 @@ void use_arguments(int argc, const char * argv[])
         {
             if (testArgSeen == false)
             {
-                std::cout << "Tests passed\n";
+        
                 testArgSeen = true;
             }
             else
@@ -41,3 +41,4 @@ void use_arguments(int argc, const char * argv[])
         }
     }
 }
+

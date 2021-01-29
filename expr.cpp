@@ -36,7 +36,7 @@ int Num::interp(Expr *o) {
 }
 
 // Add Constructor implementation
-Add::Add(Expr *lhs, Expr *rhs) {
+Add::Add(Num *lhs, Num *rhs) {
     this->lhs = lhs;
     this->rhs = rhs;
 }
