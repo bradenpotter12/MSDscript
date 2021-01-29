@@ -7,6 +7,8 @@
 
 #include "cmdline.hpp"
 #include <iostream>
+#define CATCH_CONFIG_RUNNER
+#include "catch.hpp"
 
 void use_arguments(int argc, const char * argv[])
 {
@@ -25,7 +27,10 @@ void use_arguments(int argc, const char * argv[])
         {
             if (testArgSeen == false)
             {
-        
+                bool returnValue = Catch::Session().run();
+                if (returnValue != 0) {
+                    exit(1);
+                }
                 testArgSeen = true;
             }
             else
@@ -41,4 +46,5 @@ void use_arguments(int argc, const char * argv[])
         }
     }
 }
+
 

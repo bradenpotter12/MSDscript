@@ -5,10 +5,10 @@
 //  Created by Braden Potter on 1/19/21.
 //
 
+
 #include <iostream>
 #include "cmdline.hpp"
 #include "expr.hpp"
-#define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 
 // test constructor and equals implementations
@@ -31,7 +31,7 @@ TEST_CASE("Add") {
     CHECK(expr1->rhs->equals(b));
     CHECK(expr1->lhs->equals(b) == false);
     CHECK(expr1->equals(a) == false);
-    
+
     Add *expr2 = new Add(b, a);
     CHECK(expr1->equals(expr1));
     CHECK(expr1->equals(expr2) == false);
@@ -47,7 +47,7 @@ TEST_CASE("Mult") {
     CHECK(expr1->lhs->equals(a));
     CHECK(expr1->rhs->equals(b));
     CHECK(expr1->lhs->equals(b) == false);
-    
+
     Mult *expr2 = new Mult(b, a);
     CHECK(expr1->equals(expr1));
     CHECK(expr1->equals(expr2) == false);
@@ -60,18 +60,19 @@ TEST_CASE("Variable") {
     Variable *b = new Variable("b");
     CHECK(a->string == "cat");
     CHECK(b->string == "b");
-    
+
     Variable *c = new Variable("cat");
     CHECK(a->equals(c));
     CHECK(a->equals(b) == false);
-    
+
     Num *one = new Num(10);
     CHECK(a->equals(one) == false);
 }
 
 int main(int argc, const char * argv[]) {
     use_arguments(argc, argv);
-    Catch::Session().run();
     
     return 0;
 }
+
+
