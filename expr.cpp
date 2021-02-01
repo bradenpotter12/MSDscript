@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "expr.hpp"
 #include <stdexcept>
+#include "catch.hpp"
 
 // Num Constructor implementation
     Num::Num(int val) {
@@ -26,17 +27,21 @@ bool Num::equals(Expr *o) {
 }
 
 // Num Interp implementation
-// Returns the value of a number if Num expression
-int Num::interp(Expr *o) {
-    Num *c = dynamic_cast<Num*>(o);
-    if (c == NULL) {
-        throw std::runtime_error("not a Num expression");
-    }
+int Num::interp() {
     return this->val;
 }
 
+// Num has_variable implementation
+bool Num::has_variable() {
+    return false;
+}
+
+Expr* Num::subst(std::string string, Expr *e) {
+    return nullptr;
+}
+
 // Add Constructor implementation
-Add::Add(Num *lhs, Num *rhs) {
+Add::Add(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
     this->rhs = rhs;
 }
@@ -53,10 +58,29 @@ bool Add::equals(Expr *o) {
 }
 
 // Add Interp implementation
-// Returns the sum of the subexpression values
-int Add::interp(Expr *o) {
+int Add::interp() {
+    return this->lhs->interp() + this->rhs->interp();
+}
+
+// Add has_variable implementation
+bool Add::has_variable() {
     
-    return 0;
+    return this->lhs->has_variable() || this->rhs->has_variable();
+}
+
+Expr* Add::subst(std::string string, Expr *variable) {
+    
+    if (this->lhs->equals(new Variable(string)) && this->rhs->equals(new Variable(string))) {
+        return new Add(variable, variable);
+    }
+    else if (this->lhs->equals(new Variable(string))) {
+        return new Add(variable, rhs);
+    }
+    else if (this->rhs->equals(new Variable(string))) {
+        return new Add(lhs, variable);
+    }
+    
+    return nullptr;
 }
 
 // Mult Constructor implementation
@@ -77,8 +101,28 @@ bool Mult::equals(Expr *o) {
 }
 
 // Mult Interp implementation
-int Mult::interp(Expr *e) {
-    return 0;
+int Mult::interp() {
+    return this->lhs->interp() * this->rhs->interp();
+}
+
+// Mult has_variable implementation
+bool Mult::has_variable() {
+    return this->lhs->has_variable() || this->rhs->has_variable();
+}
+
+Expr* Mult::subst(std::string string, Expr *variable) {
+    
+    if (this->lhs->equals(new Variable(string)) && this->rhs->equals(new Variable(string))) {
+        return new Mult(variable, variable);
+    }
+    else if (this->lhs->equals(new Variable(string))) {
+        return new Mult(variable, rhs);
+    }
+    else if (this->rhs->equals(new Variable(string))) {
+        return new Mult(lhs, variable);
+    }
+    
+    return nullptr;
 }
 
 // Variable Constructor implementation
@@ -98,9 +142,90 @@ bool Variable::equals(Expr *o) {
 }
 
 // Variable Interp implementation
-int Variable::interp(Expr *e) {
+int Variable::interp() {
+    
+    throw std::runtime_error("no value for variable");
     
     return 0;
+}
+
+// Variable has_variable implementation
+bool Variable::has_variable() {
+    return true;
+}
+
+Expr* Variable::subst(std::string string, Expr *variable) {
+    
+    if (this->string == string) {
+        return variable;
+    }
+    
+    return nullptr;
+}
+
+TEST_CASE( "Interp" ) {
+    CHECK( (new Num(4))->interp() == 4);
+    CHECK( (new Num(4))->interp() != 3);
+    
+    CHECK( (new Add(new Num(4), new Num(3)))->interp() == 7);
+    CHECK( (new Add(new Num(4), new Num(3)))->interp() != 6);
+    
+    CHECK( (new Mult(new Num(4), new Num(3)))->interp() == 12);
+    
+    CHECK_THROWS_WITH( (new Variable("x"))->interp(), "no value for variable" );
+    
+}
+
+TEST_CASE( "has_variable" ) {
+    CHECK( (new Num(4))->has_variable() == false);
+    
+    CHECK( (new Add(new Num(4), new Num(3)))->has_variable() == false);
+    CHECK( (new Add(new Variable("x"), new Num(4)))->has_variable() == true);
+    CHECK( (new Add(new Num(2), new Variable("x")))->has_variable() == true);
+    CHECK( (new Add(new Variable("x"), new Variable("y")))->has_variable() == true);
+    
+    CHECK( (new Mult(new Num(4), new Num(8)))->has_variable() == false);
+    CHECK( (new Mult(new Variable("x"), new Num(3)))->has_variable() == true);
+    CHECK( (new Mult(new Num(2), new Variable("x")))->has_variable() == true);
+    CHECK( (new Mult(new Variable("x"), new Variable("y")))->has_variable() == true);
+}
+
+TEST_CASE( "subst" ) {
+    
+    CHECK( (new Num(8))->subst("x", new Variable("y")) == nullptr);
+    
+    CHECK( (new Add(new Variable("x"), new Num(7)))
+           ->subst("x", new Variable("y"))
+           ->equals(new Add(new Variable("y"), new Num(7))) );
+    
+    CHECK( (new Add(new Num(7), new Variable("x")))
+           ->subst("x", new Variable("y"))
+           ->equals(new Add(new Num(7), new Variable("y"))) );
+    
+    CHECK( (new Add(new Variable("x"), new Variable("x")))
+           ->subst("x", new Variable("y"))
+           ->equals(new Add(new Variable("y"), new Variable("y"))) );
+    
+    CHECK( (new Add(new Num(4), new Num(7)))
+          ->subst("x", new Variable("y")) == nullptr );
+    
+    CHECK( (new Mult(new Variable("x"), new Num(7)))
+           ->subst("x", new Variable("y"))
+           ->equals(new Mult(new Variable("y"), new Num(7))) );
+    
+    CHECK( (new Mult(new Num(7), new Variable("x")))
+           ->subst("x", new Variable("y"))
+           ->equals(new Mult(new Num(7), new Variable("y"))) );
+    
+    CHECK( (new Mult(new Variable("x"), new Variable("x")))
+           ->subst("x", new Variable("y"))
+           ->equals(new Mult(new Variable("y"), new Variable("y"))) );
+    
+    CHECK( (new Mult(new Num(4), new Num(7)))
+          ->subst("x", new Variable("y")) == nullptr );
+    
+    CHECK( (new Variable("x"))->subst("x", new Variable("y"))
+          ->equals(new Variable("y")));
 }
 
 
