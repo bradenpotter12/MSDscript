@@ -36,6 +36,10 @@ bool Num::has_variable() {
     return false;
 }
 
+Expr* Num::subst(std::string string, Expr *e) {
+    return nullptr;
+}
+
 // Add Constructor implementation
 Add::Add(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
@@ -64,6 +68,27 @@ bool Add::has_variable() {
     return this->lhs->has_variable() || this->rhs->has_variable();
 }
 
+Expr* Add::subst(std::string string, Expr *variable) {
+    
+    if (this->lhs->equals(new Variable(string)) && this->rhs->equals(new Variable(string))) {
+        return new Add(variable, variable);
+    }
+    else if (this->lhs->equals(new Variable(string))) {
+        return new Add(variable, rhs);
+    }
+    else if (this->rhs->equals(new Variable(string))) {
+        return new Add(lhs, variable);
+    }
+    
+    return nullptr;
+}
+
+/*
+ 
+ 
+ 
+ */
+
 // Mult Constructor implementation
 Mult::Mult(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
@@ -89,6 +114,10 @@ int Mult::interp() {
 // Mult has_variable implementation
 bool Mult::has_variable() {
     return this->lhs->has_variable() || this->rhs->has_variable();
+}
+
+Expr* Mult::subst(std::string string, Expr *e) {
+    return e;
 }
 
 // Variable Constructor implementation
@@ -120,6 +149,10 @@ bool Variable::has_variable() {
     return true;
 }
 
+Expr* Variable::subst(std::string string, Expr *e) {
+    return e;
+}
+
 TEST_CASE( "Interp" ) {
     CHECK( (new Num(4))->interp() == 4);
     CHECK( (new Num(4))->interp() != 3);
@@ -147,5 +180,29 @@ TEST_CASE( "has_variable" ) {
     CHECK( (new Mult(new Variable("x"), new Variable("y")))->has_variable() == true);
 }
 
+TEST_CASE( "subst" ) {
+    
+    // Wanted to double check variable->equals was working
+    CHECK( (new Variable("x"))->equals(new Variable("x")));
+    CHECK( (new Variable("x"))->equals(new Variable("y")) == false);
+    
+    CHECK( (new Num(8))->subst("x", new Variable("y")) == nullptr);
+    
+    CHECK( (new Add(new Variable("x"), new Num(7)))
+           ->subst("x", new Variable("y"))
+           ->equals(new Add(new Variable("y"), new Num(7))) );
+    
+    CHECK( (new Add(new Num(7), new Variable("x")))
+           ->subst("x", new Variable("y"))
+           ->equals(new Add(new Num(7), new Variable("y"))) );
+    
+    CHECK( (new Add(new Variable("x"), new Variable("x")))
+           ->subst("x", new Variable("y"))
+           ->equals(new Add(new Variable("y"), new Variable("y"))) );
+    
+    CHECK( (new Add(new Num(4), new Num(7)))
+          ->subst("x", new Variable("y"))== nullptr );
+    
+}
 
 

@@ -12,6 +12,11 @@ public:
     // Returns true if the expression is a variable or contains
     // a variable, false otherwise
     virtual bool has_variable() = 0;
+    
+    // If an expression has a variable that matches the string
+    // parameter when subst() is called, it will replace the
+    // variable in the expression with a different variable
+    virtual Expr* subst(std::string string, Expr *e) = 0;
 };
 
 // Num Class
@@ -25,6 +30,7 @@ public:
     bool equals(Expr *o);
     int interp();
     bool has_variable();
+    Expr* subst(std::string string, Expr *e);
 };
 
 // Add Class
@@ -39,6 +45,7 @@ public:
     bool equals(Expr *o);
     int interp();
     bool has_variable();
+    Expr* subst(std::string string, Expr *e);
 };
 
 // Mult Class
@@ -53,6 +60,7 @@ public:
     bool equals(Expr *o);
     int interp();
     bool has_variable();
+    Expr* subst(std::string string, Expr *e);
 };
 
 // Variable Class
@@ -66,4 +74,5 @@ public:
     bool equals(Expr *o);
     int interp();
     bool has_variable();
+    Expr* subst(std::string string, Expr *e);
 };
