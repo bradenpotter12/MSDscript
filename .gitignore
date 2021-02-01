@@ -2,7 +2,7 @@
 *.DS_Store
 
 # Xcode
-/xcuserdata
+xcuserdata
 
 # Project Executable 
 msd-script
