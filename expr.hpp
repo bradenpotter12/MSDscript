@@ -5,7 +5,9 @@
 class Expr {
 public:
     virtual bool equals(Expr *e) = 0;
-    virtual int interp(Expr *e) = 0;
+    
+    // Returns an int for the value of an expression
+    virtual int interp() = 0;
 };
 
 // Num Class
@@ -17,7 +19,7 @@ public:
     Num(int val);
     
     bool equals(Expr *o);
-    int interp(Expr *o);
+    int interp();
 };
 
 // Add Class
@@ -30,7 +32,7 @@ public:
     Add(Num *lhs, Num *rhs);
     
     bool equals(Expr *o);
-    int interp(Expr *o);
+    int interp();
 };
 
 // Mult Class
@@ -43,7 +45,7 @@ public:
     Mult(Expr *lhs, Expr *rhs);
     
     bool equals(Expr *o);
-    int interp(Expr *o);
+    int interp();
 };
 
 // Variable Class
@@ -55,5 +57,5 @@ public:
     Variable(std::string string);
     
     bool equals(Expr *o);
-    int interp(Expr *o);
+    int interp();
 };

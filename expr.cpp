@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "expr.hpp"
 #include <stdexcept>
+#include "catch.hpp"
 
 // Num Constructor implementation
     Num::Num(int val) {
@@ -26,12 +27,7 @@ bool Num::equals(Expr *o) {
 }
 
 // Num Interp implementation
-// Returns the value of a number if Num expression
-int Num::interp(Expr *o) {
-    Num *c = dynamic_cast<Num*>(o);
-    if (c == NULL) {
-        throw std::runtime_error("not a Num expression");
-    }
+int Num::interp() {
     return this->val;
 }
 
@@ -53,10 +49,8 @@ bool Add::equals(Expr *o) {
 }
 
 // Add Interp implementation
-// Returns the sum of the subexpression values
-int Add::interp(Expr *o) {
-    
-    return 0;
+int Add::interp() {
+    return this->lhs->interp() + this->rhs->interp();
 }
 
 // Mult Constructor implementation
@@ -77,8 +71,8 @@ bool Mult::equals(Expr *o) {
 }
 
 // Mult Interp implementation
-int Mult::interp(Expr *e) {
-    return 0;
+int Mult::interp() {
+    return this->lhs->interp() * this->rhs->interp();
 }
 
 // Variable Constructor implementation
@@ -98,9 +92,22 @@ bool Variable::equals(Expr *o) {
 }
 
 // Variable Interp implementation
-int Variable::interp(Expr *e) {
+int Variable::interp() {
+    
+    throw std::runtime_error("no value for variable");
     
     return 0;
 }
 
-
+TEST_CASE( "Interp" ) {
+    CHECK( (new Num(4))->interp() == 4);
+    CHECK( (new Num(4))->interp() != 3);
+    
+    CHECK( (new Add(new Num(4), new Num(3)))->interp() == 7);
+    CHECK( (new Add(new Num(4), new Num(3)))->interp() != 6);
+    
+    CHECK( (new Mult(new Num(4), new Num(3)))->interp() == 12);
+    
+    CHECK_THROWS_WITH( (new Variable("x"))->interp(), "no value for variable" );
+    
+}
