@@ -67,6 +67,10 @@ TEST_CASE("Variable") {
 
     Num *one = new Num(10);
     CHECK(a->equals(one) == false);
+    
+    // Wanted to double check variable->equals was working
+    CHECK( (new Variable("x"))->equals(new Variable("x")));
+    CHECK( (new Variable("x"))->equals(new Variable("y")) == false);
 }
 
 int main(int argc, const char * argv[]) {
