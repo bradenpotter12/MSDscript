@@ -8,6 +8,10 @@ public:
     
     // Returns an int for the value of an expression
     virtual int interp() = 0;
+    
+    // Returns true if the expression is a variable or contains
+    // a variable, false otherwise
+    virtual bool has_variable() = 0;
 };
 
 // Num Class
@@ -20,6 +24,7 @@ public:
     
     bool equals(Expr *o);
     int interp();
+    bool has_variable();
 };
 
 // Add Class
@@ -29,10 +34,11 @@ public:
     Expr *rhs;
     
     // constructor
-    Add(Num *lhs, Num *rhs);
+    Add(Expr *lhs, Expr *rhs);
     
     bool equals(Expr *o);
     int interp();
+    bool has_variable();
 };
 
 // Mult Class
@@ -46,6 +52,7 @@ public:
     
     bool equals(Expr *o);
     int interp();
+    bool has_variable();
 };
 
 // Variable Class
@@ -58,4 +65,5 @@ public:
     
     bool equals(Expr *o);
     int interp();
+    bool has_variable();
 };

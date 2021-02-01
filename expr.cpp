@@ -31,8 +31,13 @@ int Num::interp() {
     return this->val;
 }
 
+// Num has_variable implementation
+bool Num::has_variable() {
+    return false;
+}
+
 // Add Constructor implementation
-Add::Add(Num *lhs, Num *rhs) {
+Add::Add(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
     this->rhs = rhs;
 }
@@ -51,6 +56,12 @@ bool Add::equals(Expr *o) {
 // Add Interp implementation
 int Add::interp() {
     return this->lhs->interp() + this->rhs->interp();
+}
+
+// Add has_variable implementation
+bool Add::has_variable() {
+    
+    return this->lhs->has_variable() || this->rhs->has_variable();
 }
 
 // Mult Constructor implementation
@@ -73,6 +84,11 @@ bool Mult::equals(Expr *o) {
 // Mult Interp implementation
 int Mult::interp() {
     return this->lhs->interp() * this->rhs->interp();
+}
+
+// Mult has_variable implementation
+bool Mult::has_variable() {
+    return this->lhs->has_variable() || this->rhs->has_variable();
 }
 
 // Variable Constructor implementation
@@ -99,6 +115,11 @@ int Variable::interp() {
     return 0;
 }
 
+// Variable has_variable implementation
+bool Variable::has_variable() {
+    return true;
+}
+
 TEST_CASE( "Interp" ) {
     CHECK( (new Num(4))->interp() == 4);
     CHECK( (new Num(4))->interp() != 3);
@@ -111,3 +132,20 @@ TEST_CASE( "Interp" ) {
     CHECK_THROWS_WITH( (new Variable("x"))->interp(), "no value for variable" );
     
 }
+
+TEST_CASE( "has_variable" ) {
+    CHECK( (new Num(4))->has_variable() == false);
+    
+    CHECK( (new Add(new Num(4), new Num(3)))->has_variable() == false);
+    CHECK( (new Add(new Variable("x"), new Num(4)))->has_variable() == true);
+    CHECK( (new Add(new Num(2), new Variable("x")))->has_variable() == true);
+    CHECK( (new Add(new Variable("x"), new Variable("y")))->has_variable() == true);
+    
+    CHECK( (new Mult(new Num(4), new Num(8)))->has_variable() == false);
+    CHECK( (new Mult(new Variable("x"), new Num(3)))->has_variable() == true);
+    CHECK( (new Mult(new Num(2), new Variable("x")))->has_variable() == true);
+    CHECK( (new Mult(new Variable("x"), new Variable("y")))->has_variable() == true);
+}
+
+
+
