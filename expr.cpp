@@ -160,10 +160,10 @@ bool Variable::has_variable() {
     return true;
 }
 
-Expr* Variable::subst(std::string string, Expr *exprSub) {
+Expr* Variable::subst(std::string string, Expr *replacement) {
 
     if (this->string == string) {
-        return exprSub;
+        return replacement;
     }
     
     return this;
