@@ -13,6 +13,12 @@
 
 // test constructor and equals implementations
 TEST_CASE("Num") {
+    
+    CHECK( (new Num(7))->equals(new Variable("x")));
+    bool isNum = (new Num(7))->equals(new Variable("x"));
+    CHECK( isNum == false);
+    
+    
     Num *c = new Num(3);
     Num *b = new Num(3);
     Num *a = new Num(5);
