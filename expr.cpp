@@ -82,7 +82,7 @@ Expr* Add::subst(std::string string, Expr *exprSub) {
 void Add::print(std::ostream &out) {
     out << '(';
     this->lhs->print(out);
-    out << " + ";
+    out << "+";
     this->rhs->print(out);
     out << ')';
 }
@@ -122,7 +122,7 @@ Expr* Mult::subst(std::string string, Expr *exprSub) {
 void Mult::print(std::ostream &out) {
     out << '(';
     this->lhs->print(out);
-    out << " * ";
+    out << "*";
     this->rhs->print(out);
     out << ')';
 }
@@ -256,37 +256,37 @@ TEST_CASE( "print" ) {
     {
     std::stringstream out("");
     (new Add(new Num(1), new Num(2)))->print(out);
-    CHECK( out.str() == "(1 + 2)");
+    CHECK( out.str() == "(1+2)");
     }
     
     {
     std::stringstream out("");
     (new Add(new Add(new Num(1), new Num(2)), new Num(1)))->print(out);
-    CHECK( out.str() == "((1 + 2) + 1)");
+    CHECK( out.str() == "((1+2)+1)");
     }
     
     {
     std::stringstream out("");
     (new Mult(new Add(new Num(1), new Num(2)), new Num(1)))->print(out);
-    CHECK( out.str() == "((1 + 2) * 1)");
+    CHECK( out.str() == "((1+2)*1)");
     }
     
     {
     std::stringstream out("");
     (new Mult(new Mult(new Num(1), new Num(2)), new Num(1)))->print(out);
-    CHECK( out.str() == "((1 * 2) * 1)");
+    CHECK( out.str() == "((1*2)*1)");
     }
     
     {
     std::stringstream out("");
     (new Mult(new Add(new Variable("x"), new Num(2)), new Num(1)))->print(out);
-    CHECK( out.str() == "((x + 2) * 1)");
+    CHECK( out.str() == "((x+2)*1)");
     }
     
     {
     std::stringstream out("");
     (new Mult(new Add(new Variable("x"), new Num(2)), new Variable("y")))->print(out);
-    CHECK( out.str() == "((x + 2) * y)");
+    CHECK( out.str() == "((x+2)*y)");
     }
     
 }
