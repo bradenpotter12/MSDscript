@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A22B031D25CC3C140097B98F /* test.m in Sources */ = {isa = PBXBuildFile; fileRef = A22B031C25CC3C140097B98F /* test.m */; };
+		A22B032425CC3D8E0097B98F /* expr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A29072DD25C119DD00B6479F /* expr.cpp */; };
+		A22B032925CC404F0097B98F /* run.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A22B032725CC404F0097B98F /* run.cpp */; };
 		A274558825B7AEC700883B5C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A274558725B7AEC700883B5C /* main.cpp */; };
 		A274559525B7B7CF00883B5C /* cmdline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A274559325B7B7CF00883B5C /* cmdline.cpp */; };
 		A29072E025C1E64C00B6479F /* expr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A29072DD25C119DD00B6479F /* expr.cpp */; };
@@ -25,6 +28,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A22B031A25CC3C130097B98F /* test.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = test.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A22B031C25CC3C140097B98F /* test.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = test.m; sourceTree = "<group>"; };
+		A22B031E25CC3C140097B98F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A22B032725CC404F0097B98F /* run.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = run.cpp; sourceTree = "<group>"; };
+		A22B032825CC404F0097B98F /* run.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = run.hpp; sourceTree = "<group>"; };
 		A274558425B7AEC700883B5C /* msd-script-cs6015 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "msd-script-cs6015"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A274558725B7AEC700883B5C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		A274559325B7B7CF00883B5C /* cmdline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cmdline.cpp; sourceTree = "<group>"; };
@@ -35,6 +43,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A22B031725CC3C130097B98F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A274558125B7AEC700883B5C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -45,10 +60,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A22B031B25CC3C140097B98F /* test */ = {
+			isa = PBXGroup;
+			children = (
+				A22B031C25CC3C140097B98F /* test.m */,
+				A22B031E25CC3C140097B98F /* Info.plist */,
+				A22B032725CC404F0097B98F /* run.cpp */,
+				A22B032825CC404F0097B98F /* run.hpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
 		A274557B25B7AEC600883B5C = {
 			isa = PBXGroup;
 			children = (
 				A274558625B7AEC700883B5C /* msd-script-cs6015 */,
+				A22B031B25CC3C140097B98F /* test */,
 				A274558525B7AEC700883B5C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -57,6 +84,7 @@
 			isa = PBXGroup;
 			children = (
 				A274558425B7AEC700883B5C /* msd-script-cs6015 */,
+				A22B031A25CC3C130097B98F /* test.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -77,6 +105,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A22B031925CC3C130097B98F /* test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A22B032125CC3C140097B98F /* Build configuration list for PBXNativeTarget "test" */;
+			buildPhases = (
+				A22B031625CC3C130097B98F /* Sources */,
+				A22B031725CC3C130097B98F /* Frameworks */,
+				A22B031825CC3C130097B98F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = test;
+			productName = test;
+			productReference = A22B031A25CC3C130097B98F /* test.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		A274558325B7AEC700883B5C /* msd-script-cs6015 */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A274558B25B7AEC700883B5C /* Build configuration list for PBXNativeTarget "msd-script-cs6015" */;
@@ -102,6 +147,9 @@
 			attributes = {
 				LastUpgradeCheck = 1230;
 				TargetAttributes = {
+					A22B031925CC3C130097B98F = {
+						CreatedOnToolsVersion = 12.4;
+					};
 					A274558325B7AEC700883B5C = {
 						CreatedOnToolsVersion = 12.3;
 					};
@@ -121,11 +169,32 @@
 			projectRoot = "";
 			targets = (
 				A274558325B7AEC700883B5C /* msd-script-cs6015 */,
+				A22B031925CC3C130097B98F /* test */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		A22B031825CC3C130097B98F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		A22B031625CC3C130097B98F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A22B032925CC404F0097B98F /* run.cpp in Sources */,
+				A22B032425CC3D8E0097B98F /* expr.cpp in Sources */,
+				A22B031D25CC3C140097B98F /* test.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A274558025B7AEC700883B5C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -139,6 +208,38 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		A22B031F25CC3C140097B98F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = test/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bradenpotter.test;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A22B032025CC3C140097B98F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = test/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bradenpotter.test;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		A274558925B7AEC700883B5C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -269,6 +370,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A22B032125CC3C140097B98F /* Build configuration list for PBXNativeTarget "test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A22B031F25CC3C140097B98F /* Debug */,
+				A22B032025CC3C140097B98F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		A274557F25B7AEC600883B5C /* Build configuration list for PBXProject "msd-script-cs6015" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
