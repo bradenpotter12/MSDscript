@@ -86,7 +86,6 @@ void Add::print(std::ostream &out) {
     out << "+";
     this->rhs->print(out);
     out << ')';
-
 }
 
 // Mult Constructor implementation
@@ -119,7 +118,6 @@ bool Mult::has_variable() {
 Expr* Mult::subst(std::string string, Expr *exprSub) {
     
     return new Mult(this->lhs->subst(string, exprSub), this->rhs->subst(string, exprSub));
-
 }
 
 void Mult::print(std::ostream &out) {
@@ -128,7 +126,6 @@ void Mult::print(std::ostream &out) {
     out << "*";
     this->rhs->print(out);
     out << ')';
-
 }
 
 // Variable Constructor implementation
@@ -151,8 +148,7 @@ bool Variable::equals(Expr *o) {
 int Variable::interp() {
     
     throw std::runtime_error("no value for variable");
-    
-    return 0;
+
 }
 
 // Variable has_variable implementation
@@ -167,12 +163,78 @@ Expr* Variable::subst(std::string string, Expr *replacement) {
     }
     
     return this;
-
 }
 
 void Variable::print(std::ostream &out) {
     out << this->string;
+}
 
+// test constructor and equals implementations
+TEST_CASE("Num") {
+    
+    CHECK( (new Num(7))->equals(new Variable("x")) == false);
+    
+    Num *c = new Num(3);
+    Num *b = new Num(3);
+    Num *a = new Num(5);
+    CHECK(c->val == 3);
+    CHECK(a->val == 5);
+    CHECK(c->equals(b));
+    CHECK(c->equals(a) == false);
+}
+
+// test constructor and equals implementations
+TEST_CASE("Add") {
+    Num *a = new Num(3);
+    Num *b = new Num(5);
+    Add *expr1 = new Add(a, b);
+    CHECK(expr1->lhs->equals(a));
+    CHECK(expr1->rhs->equals(b));
+    CHECK(expr1->lhs->equals(b) == false);
+    CHECK(expr1->equals(a) == false);
+
+    Add *expr2 = new Add(b, a);
+    CHECK(expr1->equals(expr1));
+    CHECK(expr1->equals(expr2) == false);
+    Add *expr3 = new Add(a, b);
+    CHECK(expr1->equals(expr3));
+}
+
+// test constructor and equals implementations
+TEST_CASE("Mult") {
+    Num *a = new Num(3);
+    Num *b = new Num(5);
+    Mult *expr1 = new Mult(a, b);
+    CHECK(expr1->lhs->equals(a));
+    CHECK(expr1->rhs->equals(b));
+    CHECK(expr1->lhs->equals(b) == false);
+
+    Mult *expr2 = new Mult(b, a);
+    CHECK(expr1->equals(expr1));
+    CHECK(expr1->equals(expr2) == false);
+    Mult *expr3 = new Mult(a, b);
+    CHECK(expr1->equals(expr3));
+    
+    CHECK( (new Mult(new Num(2), new Num(3)))
+          ->equals(new Variable("x")) == false);
+}
+
+TEST_CASE("Variable") {
+    Variable *a = new Variable("cat");
+    Variable *b = new Variable("b");
+    CHECK(a->string == "cat");
+    CHECK(b->string == "b");
+
+    Variable *c = new Variable("cat");
+    CHECK(a->equals(c));
+    CHECK(a->equals(b) == false);
+
+    Num *one = new Num(10);
+    CHECK(a->equals(one) == false);
+    
+    // Wanted to double check variable->equals was working
+    CHECK( (new Variable("x"))->equals(new Variable("x")));
+    CHECK( (new Variable("x"))->equals(new Variable("y")) == false);
 }
 
 TEST_CASE( "Interp" ) {
@@ -185,7 +247,6 @@ TEST_CASE( "Interp" ) {
     CHECK( (new Mult(new Num(4), new Num(3)))->interp() == 12);
     
     CHECK_THROWS_WITH( (new Variable("x"))->interp(), "no value for variable" );
-    
 }
 
 TEST_CASE( "has_variable" ) {
@@ -208,6 +269,9 @@ TEST_CASE( "subst" ) {
     
     CHECK( (new Variable("x"))->subst("x", new Variable("y"))
           ->equals(new Variable("y")));
+    
+    CHECK( (new Variable("x"))->subst("z", new Variable("y"))
+          ->equals(new Variable("x")));
     
     CHECK( (new Add(new Variable("x"), new Num(7)))
            ->subst("x", new Variable("y"))
@@ -248,7 +312,6 @@ TEST_CASE( "subst" ) {
 
     CHECK( (new Add(new Add(new Variable("x"), new Num(1)), new Num(2)))
           ->subst("x", new Num(7))->equals( (new Add(new Add(new Num(7), new Num(1)), new Num(2)))));
-
 }
 
 TEST_CASE( "print" ) {
@@ -294,8 +357,13 @@ TEST_CASE( "print" ) {
     (new Mult(new Add(new Variable("x"), new Num(2)), new Variable("y")))->print(out);
     CHECK( out.str() == "((x+2)*y)");
     }
-    
 }
+
+
+
+
+
+
 
 
 

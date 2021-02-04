@@ -34,7 +34,6 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
-
     void print(std::ostream& output);
 
 };
@@ -52,7 +51,6 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
-
     void print(std::ostream& output);
 
 };
@@ -70,7 +68,6 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
-
     void print(std::ostream& output);
 
 };
@@ -87,7 +84,6 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
-
     void print(std::ostream& output);
 
 };
