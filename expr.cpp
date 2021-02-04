@@ -9,6 +9,7 @@
 #include "expr.hpp"
 #include <stdexcept>
 #include "catch.hpp"
+#include <sstream>
 
 // Num Constructor implementation
     Num::Num(int val) {
@@ -39,6 +40,10 @@ bool Num::has_variable() {
 Expr* Num::subst(std::string string, Expr *e) {
 
     return this;
+}
+
+void Num::print(std::ostream &out) {
+    out << this->val;
 }
 
 // Add Constructor implementation
@@ -75,6 +80,15 @@ Expr* Add::subst(std::string string, Expr *exprSub) {
 
 }
 
+void Add::print(std::ostream &out) {
+    out << '(';
+    this->lhs->print(out);
+    out << "+";
+    this->rhs->print(out);
+    out << ')';
+
+}
+
 // Mult Constructor implementation
 Mult::Mult(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
@@ -108,6 +122,15 @@ Expr* Mult::subst(std::string string, Expr *exprSub) {
 
 }
 
+void Mult::print(std::ostream &out) {
+    out << '(';
+    this->lhs->print(out);
+    out << "*";
+    this->rhs->print(out);
+    out << ')';
+
+}
+
 // Variable Constructor implementation
 Variable::Variable(std::string string) {
     this->string = string;
@@ -138,12 +161,17 @@ bool Variable::has_variable() {
 }
 
 Expr* Variable::subst(std::string string, Expr *exprSub) {
-    
+
     if (this->string == string) {
         return exprSub;
     }
     
     return this;
+
+}
+
+void Variable::print(std::ostream &out) {
+    out << this->string;
 
 }
 
@@ -222,5 +250,55 @@ TEST_CASE( "subst" ) {
           ->subst("x", new Num(7))->equals( (new Add(new Add(new Num(7), new Num(1)), new Num(2)))));
 
 }
+
+TEST_CASE( "print" ) {
+    
+    {
+    std::stringstream out("");
+    (new Num(7))->print(out);
+    CHECK( out.str() == "7");
+    }
+    
+    {
+    std::stringstream out("");
+    (new Add(new Num(1), new Num(2)))->print(out);
+    CHECK( out.str() == "(1+2)");
+    }
+    
+    {
+    std::stringstream out("");
+    (new Add(new Add(new Num(1), new Num(2)), new Num(1)))->print(out);
+    CHECK( out.str() == "((1+2)+1)");
+    }
+    
+    {
+    std::stringstream out("");
+    (new Mult(new Add(new Num(1), new Num(2)), new Num(1)))->print(out);
+    CHECK( out.str() == "((1+2)*1)");
+    }
+    
+    {
+    std::stringstream out("");
+    (new Mult(new Mult(new Num(1), new Num(2)), new Num(1)))->print(out);
+    CHECK( out.str() == "((1*2)*1)");
+    }
+    
+    {
+    std::stringstream out("");
+    (new Mult(new Add(new Variable("x"), new Num(2)), new Num(1)))->print(out);
+    CHECK( out.str() == "((x+2)*1)");
+    }
+    
+    {
+    std::stringstream out("");
+    (new Mult(new Add(new Variable("x"), new Num(2)), new Variable("y")))->print(out);
+    CHECK( out.str() == "((x+2)*y)");
+    }
+    
+}
+
+
+
+
 
 

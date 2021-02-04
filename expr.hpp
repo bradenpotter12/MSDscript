@@ -1,5 +1,6 @@
 #include <string>
 #include <stdio.h>
+#include <sstream>
 
 // Expr Class
 class Expr {
@@ -17,6 +18,8 @@ public:
     // parameter when subst() is called, it will replace the
     // variable in the expression with a different variable
     virtual Expr* subst(std::string string, Expr *e) = 0;
+    
+    virtual void print(std::ostream& out) = 0;
 };
 
 // Num Class
@@ -31,6 +34,9 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
+
+    void print(std::ostream& output);
+
 };
 
 // Add Class
@@ -46,6 +52,9 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
+
+    void print(std::ostream& output);
+
 };
 
 // Mult Class
@@ -61,6 +70,9 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
+
+    void print(std::ostream& output);
+
 };
 
 // Variable Class
@@ -75,4 +87,7 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
+
+    void print(std::ostream& output);
+
 };
