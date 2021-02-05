@@ -11,6 +11,10 @@
 #include "catch.hpp"
 #include <sstream>
 
+void Expr::pretty_print(std::ostream& out) {
+    this->pretty_print_at(print_group_none, out);
+}
+
 // Num Constructor implementation
     Num::Num(int val) {
     this->val = val;
@@ -43,6 +47,18 @@ Expr* Num::subst(std::string string, Expr *e) {
 
 void Num::print(std::ostream &out) {
     out << this->val;
+}
+
+std::string Num::to_string() {
+    
+    std::stringstream out("");
+    this->print(out);
+    
+    return out.str();
+}
+
+void Num::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    this->print(out);
 }
 
 // Add Constructor implementation
@@ -87,6 +103,18 @@ void Add::print(std::ostream &out) {
     out << ')';
 }
 
+std::string Add::to_string() {
+    
+    std::stringstream out("");
+    this->print(out);
+    return out.str();
+    
+}
+
+void Add::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    
+}
+
 // Mult Constructor implementation
 Mult::Mult(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
@@ -125,6 +153,16 @@ void Mult::print(std::ostream &out) {
     out << "*";
     this->rhs->print(out);
     out << ')';
+}
+
+std::string Mult::to_string() {
+    std::stringstream out("");
+    this->print(out);
+    return out.str();
+}
+
+void Mult::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    
 }
 
 // Variable Constructor implementation
@@ -166,6 +204,16 @@ Expr* Variable::subst(std::string string, Expr *replacement) {
 
 void Variable::print(std::ostream &out) {
     out << this->string;
+}
+
+std::string Variable::to_string() {
+    std::stringstream out("");
+    this->print(out);
+    return out.str();
+}
+
+void Variable::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    
 }
 
 // test constructor and equals implementations
@@ -357,6 +405,13 @@ TEST_CASE( "print" ) {
     (new Mult(new Add(new Variable("x"), new Num(2)), new Variable("y")))->print(out);
     CHECK( out.str() == "((x+2)*y)");
     }
+}
+
+TEST_CASE( "to_string" ) {
+    CHECK( (new Num(7))->to_string() == "7");
+    CHECK( (new Add(new Num(1), new Num(2)))->to_string() == "(1+2)");
+    CHECK( (new Mult(new Num(2), new Num(4)))->to_string() == "(2*4)");
+    CHECK( (new Variable("x"))->to_string() == "x");
 }
 
 
