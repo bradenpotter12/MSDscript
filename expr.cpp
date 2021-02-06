@@ -11,6 +11,11 @@
 #include "catch.hpp"
 #include <sstream>
 
+
+void Expr::pretty_print(std::ostream& out) {
+    this->pretty_print_at(print_group_none, out);
+}
+
 // Num Constructor implementation
     Num::Num(int val) {
     this->val = val;
@@ -44,6 +49,18 @@ Expr* Num::subst(std::string string, Expr *e) {
 
 void Num::print(std::ostream &out) {
     out << this->val;
+}
+
+std::string Num::to_string() {
+    
+    std::stringstream out("");
+    this->pretty_print(out);
+    
+    return out.str();
+}
+
+void Num::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    this->print(out);
 }
 
 // Add Constructor implementation
@@ -88,6 +105,30 @@ void Add::print(std::ostream &out) {
     out << ')';
 }
 
+std::string Add::to_string() {
+    
+    std::stringstream out("");
+    this->pretty_print(out);
+    return out.str();
+    
+}
+
+void Add::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    
+    if (mode == print_group_add || mode == print_group_add_or_mult) {
+        out << '(';
+    }
+    
+    lhs->pretty_print_at(print_group_add, out);
+    out << " + ";
+    rhs->pretty_print_at(print_group_none, out);
+    
+    if (mode == print_group_add || mode == print_group_add_or_mult) {
+        out << ')';
+    }
+
+}
+
 // Mult Constructor implementation
 Mult::Mult(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
@@ -126,6 +167,27 @@ void Mult::print(std::ostream &out) {
     out << "*";
     this->rhs->print(out);
     out << ')';
+}
+
+std::string Mult::to_string() {
+    std::stringstream out("");
+    this->pretty_print(out);
+    return out.str();
+}
+
+void Mult::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    if (mode == print_group_add_or_mult) {
+        out << '(';
+    }
+    
+    lhs->pretty_print_at(print_group_add_or_mult, out);
+    out << " * ";
+    rhs->pretty_print_at(print_group_none, out);
+    
+    if (mode == print_group_add_or_mult) {
+        out << ')';
+    }
+
 }
 
 // Variable Constructor implementation
@@ -167,6 +229,16 @@ Expr* Variable::subst(std::string string, Expr *replacement) {
 
 void Variable::print(std::ostream &out) {
     out << this->string;
+}
+
+std::string Variable::to_string() {
+    std::stringstream out("");
+    this->pretty_print(out);
+    return out.str();
+}
+
+void Variable::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    this->print(out);
 }
 
 // test constructor and equals implementations
@@ -358,6 +430,58 @@ TEST_CASE( "print" ) {
     CHECK( out.str() == "((x+2)*y)");
     }
 }
+
+TEST_CASE( "to_string" ) {
+    CHECK( (new Num(7))->to_string() == "7");
+    CHECK( (new Add(new Num(1), new Num(2)))->to_string() == "1 + 2");
+    CHECK( (new Mult(new Num(2), new Num(4)))->to_string() == "2 * 4");
+    CHECK( (new Variable("x"))->to_string() == "x");
+}
+
+TEST_CASE( "pretty_print_at" ) {
+    CHECK( (new Num(7))->to_string() == "7");
+    
+    CHECK( (new Add(new Num(1), new Add(new Num(2), new Num(3))))
+          ->to_string() == "1 + 2 + 3");
+    
+    CHECK( (new Add(new Add(new Num(1), new Num(2)), new Num(3)))
+          ->to_string() == "(1 + 2) + 3");
+
+    CHECK( (new Add(new Add(new Num(1), new Num(2)), new Add(new Num(3), new Num(4))))->to_string() == "(1 + 2) + 3 + 4");
+    
+    CHECK( (new Mult(new Num(2), new Mult(new Num(3), new Num(4))))
+          ->to_string() == "2 * 3 * 4");
+    
+    CHECK( (new Mult(new Mult(new Num(2), new Num(3)), new Num(4)))
+          ->to_string() == "(2 * 3) * 4");
+    
+    CHECK( (new Mult(new Mult(new Num(1), new Num(2)), new Mult(new Num(3), new Num(4))))->to_string() == "(1 * 2) * 3 * 4");
+    
+    CHECK( (new Variable("x"))->to_string() == "x");
+    
+    CHECK( (new Add(new Variable("x"), new Add(new Num(1), new Num(2))))->to_string() == "x + 1 + 2");
+    
+    CHECK( (new Add(new Add(new Variable("x"), new Num(1)), new Num(2)))->to_string() == "(x + 1) + 2");
+    
+    CHECK( (new Add(new Mult(new Num(2), new Num(3)), new Add(new Num(4), new Num(5))))->to_string() == "2 * 3 + 4 + 5");
+    
+    CHECK( (new Add(new Mult(new Num(2), new Num(2)), new Num(1)))
+          ->to_string() == "2 * 2 + 1");
+        
+    CHECK( (new Add(new Num(1), new Mult(new Num(2), new Num(2))))
+          ->to_string() == "1 + 2 * 2");
+    
+    CHECK( (new Add(new Add(new Num(1), new Num(2)), new Mult(new Num(2), new Num(3))))->to_string() == "(1 + 2) + 2 * 3");
+    
+    CHECK( (new Add(new Add(new Num(2), new Num(3)), new Mult(new Num(1), new Num(2))))->to_string() == "(2 + 3) + 1 * 2");
+}
+
+TEST_CASE( "pretty_print" ) {
+    std::stringstream out("");
+    (new Variable("x"))->pretty_print(out);
+    CHECK( out.str() == "x");
+}
+
 
 
 
