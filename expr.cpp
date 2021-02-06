@@ -52,7 +52,7 @@ void Num::print(std::ostream &out) {
 std::string Num::to_string() {
     
     std::stringstream out("");
-    this->pretty_print_at(print_group_none, out);
+    this->pretty_print(out);
     
     return out.str();
 }
@@ -106,7 +106,7 @@ void Add::print(std::ostream &out) {
 std::string Add::to_string() {
     
     std::stringstream out("");
-    this->pretty_print_at(print_group_none, out);
+    this->pretty_print(out);
     return out.str();
     
 }
@@ -168,7 +168,7 @@ void Mult::print(std::ostream &out) {
 
 std::string Mult::to_string() {
     std::stringstream out("");
-    this->pretty_print_at(print_group_none, out);
+    this->pretty_print(out);
     return out.str();
 }
 
@@ -229,7 +229,7 @@ void Variable::print(std::ostream &out) {
 
 std::string Variable::to_string() {
     std::stringstream out("");
-    this->print(out);
+    this->pretty_print(out);
     return out.str();
 }
 
