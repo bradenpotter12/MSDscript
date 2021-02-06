@@ -52,7 +52,7 @@ void Num::print(std::ostream &out) {
 std::string Num::to_string() {
     
     std::stringstream out("");
-    this->print(out);
+    this->pretty_print_at(print_group_none, out);
     
     return out.str();
 }
@@ -106,13 +106,24 @@ void Add::print(std::ostream &out) {
 std::string Add::to_string() {
     
     std::stringstream out("");
-    this->print(out);
+    this->pretty_print_at(print_group_none, out);
     return out.str();
     
 }
 
 void Add::pretty_print_at(print_mode_t mode, std::ostream& out) {
     
+    if (mode == print_group_add || mode == print_group_add_or_mult) {
+        out << '(';
+    }
+    
+    lhs->pretty_print_at(print_group_add, out);
+    out << " + ";
+    rhs->pretty_print_at(print_group_none, out);
+    
+    if (mode == print_group_add || mode == print_group_add_or_mult) {
+        out << ')';
+    }
 }
 
 // Mult Constructor implementation
@@ -157,12 +168,22 @@ void Mult::print(std::ostream &out) {
 
 std::string Mult::to_string() {
     std::stringstream out("");
-    this->print(out);
+    this->pretty_print_at(print_group_none, out);
     return out.str();
 }
 
 void Mult::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    if (mode == print_group_add_or_mult) {
+        out << '(';
+    }
     
+    lhs->pretty_print_at(print_group_add_or_mult, out);
+    out << " * ";
+    rhs->pretty_print_at(print_group_none, out);
+    
+    if (mode == print_group_add_or_mult) {
+        out << ')';
+    }
 }
 
 // Variable Constructor implementation
@@ -213,7 +234,7 @@ std::string Variable::to_string() {
 }
 
 void Variable::pretty_print_at(print_mode_t mode, std::ostream& out) {
-    
+    this->print(out);
 }
 
 // test constructor and equals implementations
@@ -359,7 +380,6 @@ TEST_CASE( "subst" ) {
 
     CHECK( (new Add(new Add(new Variable("x"), new Num(1)), new Num(2)))
           ->subst("x", new Num(7))->equals( (new Add(new Add(new Num(7), new Num(1)), new Num(2)))));
-
 }
 
 TEST_CASE( "print" ) {
@@ -409,10 +429,54 @@ TEST_CASE( "print" ) {
 
 TEST_CASE( "to_string" ) {
     CHECK( (new Num(7))->to_string() == "7");
-    CHECK( (new Add(new Num(1), new Num(2)))->to_string() == "(1+2)");
-    CHECK( (new Mult(new Num(2), new Num(4)))->to_string() == "(2*4)");
+    CHECK( (new Add(new Num(1), new Num(2)))->to_string() == "1 + 2");
+    CHECK( (new Mult(new Num(2), new Num(4)))->to_string() == "2 * 4");
     CHECK( (new Variable("x"))->to_string() == "x");
 }
+
+TEST_CASE( "pretty_print_at" ) {
+    CHECK( (new Num(7))->to_string() == "7");
+    
+    CHECK( (new Add(new Num(1), new Add(new Num(2), new Num(3))))
+          ->to_string() == "1 + 2 + 3");
+    
+    CHECK( (new Add(new Add(new Num(1), new Num(2)), new Num(3)))
+          ->to_string() == "(1 + 2) + 3");
+
+    CHECK( (new Add(new Add(new Num(1), new Num(2)), new Add(new Num(3), new Num(4))))->to_string() == "(1 + 2) + 3 + 4");
+    
+    CHECK( (new Mult(new Num(2), new Mult(new Num(3), new Num(4))))
+          ->to_string() == "2 * 3 * 4");
+    
+    CHECK( (new Mult(new Mult(new Num(2), new Num(3)), new Num(4)))
+          ->to_string() == "(2 * 3) * 4");
+    
+    CHECK( (new Mult(new Mult(new Num(1), new Num(2)), new Mult(new Num(3), new Num(4))))->to_string() == "(1 * 2) * 3 * 4");
+    
+    CHECK( (new Variable("x"))->to_string() == "x");
+    
+    CHECK( (new Add(new Variable("x"), new Add(new Num(1), new Num(2))))->to_string() == "x + 1 + 2");
+    
+    CHECK( (new Add(new Add(new Variable("x"), new Num(1)), new Num(2)))->to_string() == "(x + 1) + 2");
+    
+    CHECK( (new Add(new Mult(new Num(2), new Num(3)), new Add(new Num(4), new Num(5))))->to_string() == "2 * 3 + 4 + 5");
+    
+    CHECK( (new Add(new Mult(new Num(2), new Num(2)), new Num(1)))
+          ->to_string() == "2 * 2 + 1");
+        
+    CHECK( (new Add(new Num(1), new Mult(new Num(2), new Num(2))))
+          ->to_string() == "1 + 2 * 2");
+    
+    CHECK( (new Add(new Add(new Num(1), new Num(2)), new Mult(new Num(2), new Num(3))))->to_string() == "(1 + 2) + 2 * 3");
+    
+    CHECK( (new Add(new Add(new Num(2), new Num(3)), new Mult(new Num(1), new Num(2))))->to_string() == "(2 + 3) + 1 * 2");
+}
+
+
+
+
+
+
 
 
 
