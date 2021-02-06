@@ -472,6 +472,12 @@ TEST_CASE( "pretty_print_at" ) {
     CHECK( (new Add(new Add(new Num(2), new Num(3)), new Mult(new Num(1), new Num(2))))->to_string() == "(2 + 3) + 1 * 2");
 }
 
+TEST_CASE( "pretty_print" ) {
+    std::stringstream out("");
+    (new Variable("x"))->pretty_print(out);
+    CHECK( out.str() == "x");
+}
+
 
 
 
