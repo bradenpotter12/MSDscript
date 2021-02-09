@@ -100,3 +100,20 @@ public:
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
 };
+
+// _let Class
+class _let : public Expr {
+    
+    Expr *lhs;
+    Expr *rhs;
+    
+    _let(Expr *lhs, Expr *rhs);
+    
+    bool equals(Expr *o);
+    int interp();
+    bool has_variable();
+    Expr* subst(std::string string, Expr *e);
+    void print(std::ostream& output);
+    std::string to_string();
+    void pretty_print_at(print_mode_t mode, std::ostream& out);
+};

@@ -237,6 +237,49 @@ void Variable::pretty_print_at(print_mode_t mode, std::ostream& out) {
     this->print(out);
 }
 
+/* *************************************************************/
+// _let Class 
+
+_let::_let(Expr *lhs, Expr *rhs) {
+    this->lhs = lhs;
+    this->rhs = rhs;
+}
+
+bool _let::equals(Expr *o) {
+    _let *c = dynamic_cast<_let*>(o);
+    if (c == NULL) {
+        return false;
+    }
+    else {
+        return this->lhs->equals(c->lhs) &&  this->rhs->equals(c->rhs);
+    }
+}
+
+int _let::interp() {
+    return 0;
+}
+
+bool _let::has_variable() {
+    return false;
+}
+
+Expr* _let::subst(std::string string, Expr *e) {
+    return e;
+}
+
+void _let::print(std::ostream& output) {
+    
+}
+
+std::string _let::to_string() {
+    return "";
+}
+
+void _let::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    
+}
+
+
 // test constructor and equals implementations
 TEST_CASE("Num") {
     
