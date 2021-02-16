@@ -102,12 +102,13 @@ public:
 };
 
 // _let Class
-class _let : public Expr {
-    
-    Expr *lhs;
+class Let : public Expr {
+public:
+    std::string lhs;
     Expr *rhs;
+    Expr *body;
     
-    _let(Expr *lhs, Expr *rhs);
+    Let(std::string lhs, Expr *rhs, Expr *body);
     
     bool equals(Expr *o);
     int interp();
