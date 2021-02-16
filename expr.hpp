@@ -29,7 +29,6 @@ public:
     virtual std::string to_string() = 0;
     void pretty_print(std::ostream& out);
     virtual void pretty_print_at(print_mode_t mode, std::ostream& out) = 0;
-
 };
 
 // Num Class
@@ -45,10 +44,8 @@ public:
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
     void print(std::ostream& output);
-
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
-
 };
 
 // Add Class
@@ -65,10 +62,8 @@ public:
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
     void print(std::ostream& output);
-
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
-
 };
 
 // Mult Class
@@ -85,10 +80,8 @@ public:
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
     void print(std::ostream& output);
-
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
-
 };
 
 // Variable Class
@@ -104,8 +97,24 @@ public:
     bool has_variable();
     Expr* subst(std::string string, Expr *e);
     void print(std::ostream& output);
-
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+};
 
+// _let Class
+class Let : public Expr {
+public:
+    std::string lhs;
+    Expr *rhs;
+    Expr *body;
+    
+    Let(std::string lhs, Expr *rhs, Expr *body);
+    
+    bool equals(Expr *o);
+    int interp();
+    bool has_variable();
+    Expr* subst(std::string string, Expr *e);
+    void print(std::ostream& output);
+    std::string to_string();
+    void pretty_print_at(print_mode_t mode, std::ostream& out);
 };

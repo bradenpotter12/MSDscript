@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include "catch.hpp"
 #include <sstream>
-
+#define Var Variable
 
 void Expr::pretty_print(std::ostream& out) {
     this->pretty_print_at(print_group_none, out);
@@ -43,7 +43,6 @@ bool Num::has_variable() {
 }
 
 Expr* Num::subst(std::string string, Expr *e) {
-
     return this;
 }
 
@@ -126,7 +125,6 @@ void Add::pretty_print_at(print_mode_t mode, std::ostream& out) {
     if (mode == print_group_add || mode == print_group_add_or_mult) {
         out << ')';
     }
-
 }
 
 // Mult Constructor implementation
@@ -156,9 +154,9 @@ bool Mult::has_variable() {
     return this->lhs->has_variable() || this->rhs->has_variable();
 }
 
-Expr* Mult::subst(std::string string, Expr *exprSub) {
+Expr* Mult::subst(std::string string, Expr *replacement) {
     
-    return new Mult(this->lhs->subst(string, exprSub), this->rhs->subst(string, exprSub));
+    return new Mult(this->lhs->subst(string, replacement), this->rhs->subst(string, replacement));
 }
 
 void Mult::print(std::ostream &out) {
@@ -187,7 +185,6 @@ void Mult::pretty_print_at(print_mode_t mode, std::ostream& out) {
     if (mode == print_group_add_or_mult) {
         out << ')';
     }
-
 }
 
 // Variable Constructor implementation
@@ -210,7 +207,7 @@ bool Variable::equals(Expr *o) {
 int Variable::interp() {
     
     throw std::runtime_error("no value for variable");
-
+    
 }
 
 // Variable has_variable implementation
@@ -239,6 +236,130 @@ std::string Variable::to_string() {
 
 void Variable::pretty_print_at(print_mode_t mode, std::ostream& out) {
     this->print(out);
+}
+
+/* Let Class *************************************************************/
+
+Let::Let(std::string lhs, Expr * rhs, Expr * body) {
+    this->lhs = lhs;
+    this->rhs = rhs;
+    this->body = body;
+}
+
+bool Let::equals(Expr *o) {
+    Let *c = dynamic_cast<Let*>(o);
+    if (c == NULL) {
+        return false;
+    }
+    else {
+        return this->lhs == c->lhs &&  this->rhs->equals(c->rhs)
+        && this->body->equals(c->body);
+    }
+}
+
+int Let::interp() {
+    
+    this->rhs = new Num(rhs->interp());
+    this->body = body->subst(lhs, rhs);
+    
+    return body->interp();
+}
+
+bool Let::has_variable() {
+    return body->has_variable() || rhs->has_variable();
+}
+
+Expr* Let::subst(std::string string, Expr *e) {
+    if (lhs != string) {
+        return new Let(lhs, rhs->subst(string, e), body->subst(string, e));
+    }
+    return new Let(lhs, rhs->subst(string, e), body);
+}
+
+void Let::print(std::ostream& out) {
+    out << "(_let ";
+    out << lhs << "=";
+    rhs->print(out);
+    out << " _in ";
+    body->print(out);
+    out << ")";
+}
+
+std::string Let::to_string() {
+    std::stringstream out("");
+    this->print(out);
+    return out.str();
+}
+
+void Let::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    this->print(out);
+}
+
+/* TESTS *****************************************************************/
+
+TEST_CASE( "Let" ) {
+    
+    // test constructor lhs
+    CHECK( (new Let("x", new Num(5), new Add(new Variable("x"), new Num(5))))->lhs == "x");
+    
+    // test constructor rhs
+    CHECK( (new Let("x", new Num(5), new Add(new Variable("x"), new Num(5))))->rhs->equals(new Num(5)));
+    
+    // test constructor body
+    CHECK( (new Let("x", new Num(5), new Add(new Variable("x"), new Num(5))))->body->equals(new Add(new Variable("x"), new Num(5))));
+    
+    // test x is not used, expr == expr
+    CHECK( (new Let("x", new Num(5), new Num(5)))->equals(new Let("x", new Num(5), new Num(5))));
+    
+    // exprs not equal
+    CHECK( (new Let("x", new Num(6), new Add(new Variable("x"), new Num(3))))->equals(new Variable("x")) == false);
+    
+    // values in exprs not equal
+    CHECK( (new Let("x", new Num(5), new Num(5)))->equals(new Let("y", new Num(5), new Num(5))) == false);
+ 
+    // test subst
+    Expr *let1 = (new Let("x",
+                          new Num(1),
+                          new Add(new Variable("x"), new Num(2))));
+    CHECK( let1->subst("x", new Add(new Variable("y"), new Num(3)))
+          ->equals(let1) );
+    
+    Expr *let2 = (new Let("x",
+                          new Var("x"),
+                          new Add(new Var("x"), new Num(2))));
+    CHECK( let2->subst("x", new Add(new Var("y"), new Num(3)))
+          ->equals(new Let("x",
+                           new Add(new Var("y"), new Num(3)),
+                           new Add(new Var("x"), new Num(2)))) );
+    
+    CHECK( (new Let("x", new Variable("y"), new Add(new Variable("x"), new Num(2))))->subst("y", new Num(8))->equals(new Let("x", new Num(8), new Add(new Variable("x"), new Num(2)))));
+    
+    CHECK( (new Let("x", new Num(8), new Add(new Add(new Variable("x"), new Num(2)), new Variable("y"))))->subst("y", new Num(9))
+          ->equals(new Let("x", new Num(8), new Add(new Add(new Variable("x"), new Num(2)), new Num(9)))));
+    
+    CHECK( (new Add(new Variable("y"), new Variable("y")))->subst("y", new Num(8))->equals(new Add(new Num(8), new Num(8))));
+    
+    CHECK( (new Let("x", new Variable("y"), new Add(new Variable("x"), new Variable("y"))))->subst("y", new Num(8))->equals(new Let("x", new Num(8), new Add(new Variable("x"), new Num(8)))));
+    
+    // test doesn't replace variable on lhs in Let
+    CHECK( (new Let("z", new Variable("x"), new Add(new Variable("z"), new Num(32))))->subst("z", new Num(0))->equals(new Let("z", new Variable("x"), new Add(new Variable("z"), new Num(32)))));
+    
+    CHECK( (new Let("z", new Variable("z"), new Add(new Variable("z"), new Num(32))))->subst("z", new Num(0))->equals(new Let("z", new Num(0), new Add(new Variable("z"), new Num(32)))));
+    
+    CHECK( (new Let("z", new Add(new Variable("z"), new Num(2)), new Add(new Variable("z"), new Num(32))))->subst("z", new Num(0))->equals(new Let("z", new Add(new Num(0), new Num(2)), new Add(new Variable("z"), new Num(32)))));
+    
+    // test has_variable
+    CHECK( (new Let("x", new Num(5), new Add(new Variable("x"), new Num(5))))->has_variable());
+    
+    CHECK( (new Let("x", new Variable("y"), new Add(new Num(2), new Num(5))))->has_variable());
+    
+    CHECK( (new Let("x", new Num(2), new Add(new Num(2), new Num(5))))->has_variable() == false);
+    
+    CHECK( (new Let("x", new Variable("z"), new Add(new Variable("x"), new Num(5))))->has_variable());
+    
+    // test interp
+    CHECK( (new Let("x", new Num(2), new Add(new Variable("x"), new Num(32))))->interp() == 34);
+    
 }
 
 // test constructor and equals implementations
@@ -436,6 +557,7 @@ TEST_CASE( "to_string" ) {
     CHECK( (new Add(new Num(1), new Num(2)))->to_string() == "1 + 2");
     CHECK( (new Mult(new Num(2), new Num(4)))->to_string() == "2 * 4");
     CHECK( (new Variable("x"))->to_string() == "x");
+    CHECK( (new Let("x", new Num(5), new Add(new Let("y", new Num(3), new Add(new Variable("y"), new Num(2))), new Variable("x"))))->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
 }
 
 TEST_CASE( "pretty_print_at" ) {
@@ -480,17 +602,8 @@ TEST_CASE( "pretty_print" ) {
     std::stringstream out("");
     (new Variable("x"))->pretty_print(out);
     CHECK( out.str() == "x");
+    
+    std::stringstream out2("");
+    (new Let("x", new Num(5), new Add(new Let("y", new Num(3), new Add(new Variable("y"), new Num(2))), new Variable("x"))))->pretty_print(out2);
+    CHECK( out2.str() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

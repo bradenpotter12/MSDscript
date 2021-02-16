@@ -29,6 +29,10 @@ int main(int argc, const char * argv[]) {
     (new Mult(new Num(2), new Mult(new Num(3), new Num(4))))
           ->pretty_print_at(Expr::print_group_none, out3);
     std::cout << out3.str() << "\n";
+
+    std::stringstream letOut("");
+    (new Let("x", new Num(5), new Add(new Let("y", new Num(3), new Add(new Variable("y"), new Num(2))), new Variable("x"))))->print(letOut);
+    std::cout << letOut.str() << "\n";
     
     return 0;
 }
