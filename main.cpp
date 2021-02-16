@@ -30,7 +30,9 @@ int main(int argc, const char * argv[]) {
           ->pretty_print_at(Expr::print_group_none, out3);
     std::cout << out3.str() << "\n";
     
-    puts("hello");
+    std::stringstream letOut("");
+    (new Let("x", new Num(5), new Add(new Let("y", new Num(3), new Add(new Variable("y"), new Num(2))), new Variable("x"))))->print(letOut);
+    std::cout << letOut.str() << "\n";
     
     return 0;
 }
