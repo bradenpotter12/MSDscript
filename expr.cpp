@@ -48,7 +48,6 @@ Expr* Expr::parse_expr(std::istream &in) {
         consume(in, c);
         throw std::runtime_error("invalid input");
     }
-    
 }
 
 Expr* Expr::parse_num(std::istream &in) {
@@ -61,7 +60,13 @@ Expr* Expr::parse_num(std::istream &in) {
     }
     
     while (1) {
-        int c = in.get();
+        int c = in.peek();
+        
+        if (c == ')') {
+            break;
+        }
+        
+        c = in.get();
         if (isdigit(c))
             n = n*10 + (c - '0');
         else
