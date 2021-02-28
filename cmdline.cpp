@@ -9,6 +9,7 @@
 #include <iostream>
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
+#include "expr.hpp"
 
 void use_arguments(int argc, const char * argv[])
 {
@@ -37,6 +38,17 @@ void use_arguments(int argc, const char * argv[])
             {
                 std::cerr << "--test may only be passed as a parameter once\n";
                 exit(1);
+            }
+        }
+        else if (mainParameter == "--interp") {
+            while (1) {
+                Expr * num = Expr::parse_expr(std::cin);
+                std::cout << num->interp() << std::endl;
+                
+                Expr::skip_whitespace(std::cin);
+                if (std::cin.eof()) {
+                    break;
+                }
             }
         }
         else

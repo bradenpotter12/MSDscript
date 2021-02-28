@@ -29,6 +29,11 @@ public:
     virtual std::string to_string() = 0;
     void pretty_print(std::ostream& out);
     virtual void pretty_print_at(print_mode_t mode, std::ostream& out) = 0;
+    
+    static Expr* parse_num(std::istream &in);
+    static Expr* parse_expr(std::istream &in);
+    static void skip_whitespace(std::istream &in);
+//    Expr* parse_str(std::string s);
 };
 
 // Num Class
@@ -46,6 +51,7 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    
 };
 
 // Add Class
@@ -64,6 +70,7 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    
 };
 
 // Mult Class
@@ -82,6 +89,7 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    
 };
 
 // Variable Class
@@ -99,6 +107,7 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    
 };
 
 // _let Class
@@ -117,4 +126,5 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    
 };

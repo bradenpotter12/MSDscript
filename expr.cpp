@@ -12,6 +12,69 @@
 #include <sstream>
 #define Var Variable
 
+// consumes char, checks if char consumed matches what is expected
+static void consume(std::istream &in, int expect) {
+    int c = in.get();
+    if (c != expect)
+        throw std::runtime_error("consume mismatch");
+}
+
+void Expr::skip_whitespace(std::istream &in) {
+    while (1) {
+        int c = in.peek();
+        if (!isspace(c)) {
+            break;
+        }
+        consume(in, c);
+    }
+}
+
+Expr* Expr::parse_expr(std::istream &in) {
+    skip_whitespace(in);
+    
+    int c = in.peek();
+    if ((c == '-') || isdigit(c))
+        return Expr::parse_num(in);
+    else if (c == '(') {
+        consume(in, '(');
+        Expr *e = Expr::parse_expr(in);
+        Expr::skip_whitespace(in);
+        c = in.get();
+        if (c != ')')
+            throw std::runtime_error("missing closing parenthesis");
+        return e;
+    }
+    else {
+        consume(in, c);
+        throw std::runtime_error("invalid input");
+    }
+    
+}
+
+Expr* Expr::parse_num(std::istream &in) {
+    int n = 0;
+    bool negative = false;
+    
+    if (in.peek() == '-') {
+        negative = true;
+        consume(in, '-');
+    }
+    
+    while (1) {
+        int c = in.get();
+        if (isdigit(c))
+            n = n*10 + (c - '0');
+        else
+            break;
+    }
+    
+    if (negative) {
+        n = -n;
+    }
+    
+    return new Num(n);
+}
+
 void Expr::pretty_print(std::ostream& out) {
     this->pretty_print_at(print_group_none, out);
 }
@@ -127,6 +190,13 @@ void Add::pretty_print_at(print_mode_t mode, std::ostream& out) {
     }
 }
 
+//Expr* Add::parse(std::istream &in) {
+//    return new Add(new Num(1), new Num(1));
+//}
+//Expr* Add::parse_str(std::string s) {
+//    return new Add(new Num(1), new Num(1));
+//}
+
 // Mult Constructor implementation
 Mult::Mult(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
@@ -187,6 +257,13 @@ void Mult::pretty_print_at(print_mode_t mode, std::ostream& out) {
     }
 }
 
+//Expr* Mult::parse(std::istream &in) {
+//    return new Mult(new Num(1), new Num(1));
+//}
+//Expr* Mult::parse_str(std::string s) {
+//    return new Mult(new Num(1), new Num(1));
+//}
+
 // Variable Constructor implementation
 Variable::Variable(std::string string) {
     this->string = string;
@@ -237,6 +314,13 @@ std::string Variable::to_string() {
 void Variable::pretty_print_at(print_mode_t mode, std::ostream& out) {
     this->print(out);
 }
+
+//Expr* Variable::parse(std::istream &in) {
+//    return new Variable("x");
+//}
+//Expr* Variable::parse_str(std::string s) {
+//    return new Variable("x");
+//}
 
 /* Let Class *************************************************************/
 
@@ -294,6 +378,13 @@ std::string Let::to_string() {
 void Let::pretty_print_at(print_mode_t mode, std::ostream& out) {
     this->print(out);
 }
+
+//Expr* Let::parse(std::istream &in) {
+//    return new Let("x", new Num(3), new Add(new Num(1), new Num(1)));
+//}
+//Expr* Let::parse_str(std::string s) {
+//    return new Let("x", new Num(3), new Add(new Num(1), new Num(1)));
+//}
 
 /* TESTS *****************************************************************/
 
@@ -606,6 +697,10 @@ TEST_CASE( "pretty_print" ) {
     std::stringstream out2("");
     (new Let("x", new Num(5), new Add(new Let("y", new Num(3), new Add(new Variable("y"), new Num(2))), new Variable("x"))))->pretty_print(out2);
     CHECK( out2.str() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
+}
+
+TEST_CASE( "parse" ) {
+    
 }
 
 
