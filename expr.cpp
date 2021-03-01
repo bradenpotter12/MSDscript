@@ -29,7 +29,8 @@ void Expr::skip_whitespace(std::istream &in) {
     }
 }
 
-Expr* Expr::parse_expr(std::istream &in) {
+// <expr> = <number> | (<expr>)
+Expr* Expr::parse_expr2(std::istream &in) {
     skip_whitespace(in);
     
     int c = in.peek();
@@ -78,6 +79,82 @@ Expr* Expr::parse_num(std::istream &in) {
     }
     
     return new Num(n);
+}
+
+Expr *parse_multExpr(std::istream &in) {
+    Expr *e;
+    
+    e = Expr::parse_expr(in);
+    
+    Expr::skip_whitespace(in);
+    
+    int c = in.peek();
+    if (c == '*') {
+        consume(in, '*');
+        Expr *rhs = Expr::parse_expr(in);
+        return new Mult(e, rhs);
+    } else
+        return e;
+}
+
+Expr* Expr::parse_multicand(std::istream &in) {
+    skip_whitespace(in);
+    
+    int c = in.peek();
+    if ((c == '-') || isdigit(c))
+        return Expr::parse_num(in);
+    else if (c == '(') {
+        consume(in, '(');
+        Expr *e = parse_multExpr(in);
+        Expr::skip_whitespace(in);
+        c = in.get();
+        if (c != ')')
+            throw std::runtime_error("missing closing parenthesis");
+        return e;
+    }
+    else {
+        consume(in, c);
+        throw std::runtime_error("invalid input");
+    }
+}
+
+// <expr> = <addend> | <addend> + <expr>
+Expr* Expr::parse_expr(std::istream &in) {
+    Expr *e;
+    
+    e = Expr::parse_addend(in);
+    
+    Expr::skip_whitespace(in);
+    
+    int c = in.peek();
+    if (c == '+') {
+        consume(in, '+');
+        Expr *rhs = parse_expr(in);
+        return new Add(e, rhs);
+    } else
+        return e;
+}
+
+// <expr> = <number> | (<expr>)
+Expr* Expr::parse_addend(std::istream &in) {
+    skip_whitespace(in);
+    
+    int c = in.peek();
+    if ((c == '-') || isdigit(c))
+        return Expr::parse_num(in);
+    else if (c == '(') {
+        consume(in, '(');
+        Expr *e = parse_expr(in);
+        Expr::skip_whitespace(in);
+        c = in.get();
+        if (c != ')')
+            throw std::runtime_error("missing closing parenthesis");
+        return e;
+    }
+    else {
+        consume(in, c); // + consumed here 1 + 1
+        throw std::runtime_error("invalid input");
+    }
 }
 
 void Expr::pretty_print(std::ostream& out) {
