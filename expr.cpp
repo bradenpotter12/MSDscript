@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include "catch.hpp"
 #include <sstream>
+#include <iostream>
 #define Var Variable
 
 // consumes char, checks if char consumed matches what is expected
@@ -98,8 +99,12 @@ Expr* Expr::parse_multicand(std::istream &in) {
     skip_whitespace(in);
     
     int c = in.peek();
+    
+    // <number>
     if ((c == '-') || isdigit(c))
         return Expr::parse_num(in);
+    
+    // (<expr>)
     else if (c == '(') {
         consume(in, '(');
         Expr *e = parse_expr(in);
@@ -109,10 +114,95 @@ Expr* Expr::parse_multicand(std::istream &in) {
             throw std::runtime_error("missing closing parenthesis");
         return e;
     }
+    
+    // <variable>
+//    else if (isalpha(c)) {
+//
+//    }
+    
+    // _let <variable> = <expr> _in <expr>
+    // parse_let()
+    // parse_keyword() _let _in
+    // vars and keywords have a lot in common
+    
+    else if (c == '_') {
+    
+        Expr *e = parse_let(in);
+        return e;
+    }
     else {
         consume(in, c); // + consumed here 1 + 1
         throw std::runtime_error("invalid input");
     }
+}
+
+std::string parse_keyword(std::istream &in) {
+    
+    int c = in.peek();
+    
+    if (c == '_') {
+        
+        consume(in, '_'); // consume '_'
+        int char1 = in.peek();
+        
+        if (char1 == 'l') {
+            std::string str = "let ";
+            for (int i = 0; i < str.length(); i++) {
+                std::cout << str[i];
+                consume(in, str[i]);
+            }
+            return "_let";
+        }
+            
+        else if (char1 == 'i') {
+            std::string str = "in ";
+            for (int i = 0; i < str.length(); i++) {
+                std::cout << str[i];
+                consume(in, str[i]);
+            }
+            return "_in";
+        }
+    
+        else
+            throw std::runtime_error("invalid input");
+    }
+    
+    else if (isalpha(c))
+        return "var";
+    
+    else
+        throw std::runtime_error("invalid input");
+}
+
+Expr* Expr::parse_let(std::istream &in) {
+    
+    std::string keyword = parse_keyword(in);
+    
+    bool let = false;
+    std::string lhs;
+    std::string rhs;
+    std::string body;
+    
+    
+    if (keyword == "_let") {
+        let = true;
+    }
+    else if (keyword == "var") {
+        lhs = in.get();
+        
+        // make sure variable isn't more than one letter
+        while (in.peek() != ' ') {
+            char c = in.get();
+            lhs += c;
+        }
+        return new Let("x", new Num(0), new Add(new Variable("x"), new Num(3)));
+    }
+    
+    
+    skip_whitespace(in);
+    parse_let(in);
+    return new Let("x", new Num(0), new Add(new Variable("x"), new Num(3)));
+    
 }
 
 void Expr::pretty_print(std::ostream& out) {

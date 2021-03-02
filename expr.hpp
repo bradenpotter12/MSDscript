@@ -35,6 +35,7 @@ public:
     static void skip_whitespace(std::istream &in);
     static Expr* parse_multicand(std::istream &in);
     static Expr* parse_addend(std::istream &in);
+    static Expr* parse_let(std::istream &in);
 //    Expr* parse_str(std::string s);
 };
 
