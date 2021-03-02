@@ -114,22 +114,29 @@ Expr* Expr::parse_multicand(std::istream &in) {
             throw std::runtime_error("missing closing parenthesis");
         return e;
     }
-    
-    // <variable>
-//    else if (isalpha(c)) {
-//
-//    }
-    
+        
     // _let <variable> = <expr> _in <expr>
-    // parse_let()
-    // parse_keyword() _let _in
-    // vars and keywords have a lot in common
-    
     else if (c == '_') {
     
         Expr *e = parse_let(in);
         return e;
     }
+    
+    // <variable>
+    else if (isalpha(c)) {
+        
+        char c = in.get();
+        std::string var;
+        var += c;
+        
+        // make sure variable isn't more than one letter
+        while (in.peek() != ' ') {
+            char c = in.get();
+            var += c;
+        }
+        return new Variable(var);
+    }
+    
     else {
         consume(in, c); // + consumed here 1 + 1
         throw std::runtime_error("invalid input");
@@ -148,7 +155,6 @@ std::string parse_keyword(std::istream &in) {
         if (char1 == 'l') {
             std::string str = "let ";
             for (int i = 0; i < str.length(); i++) {
-                std::cout << str[i];
                 consume(in, str[i]);
             }
             return "_let";
@@ -157,52 +163,52 @@ std::string parse_keyword(std::istream &in) {
         else if (char1 == 'i') {
             std::string str = "in ";
             for (int i = 0; i < str.length(); i++) {
-                std::cout << str[i];
                 consume(in, str[i]);
             }
             return "_in";
         }
-    
-        else
-            throw std::runtime_error("invalid input");
     }
-    
-    else if (isalpha(c))
-        return "var";
-    
-    else
-        throw std::runtime_error("invalid input");
+    throw std::runtime_error("invalid input");
 }
 
 Expr* Expr::parse_let(std::istream &in) {
-    
-    std::string keyword = parse_keyword(in);
-    
-    bool let = false;
     std::string lhs;
-    std::string rhs;
-    std::string body;
+    Expr* rhs = nullptr;
+    Expr* body = nullptr;
+    bool body_parsed = false;
     
-    
-    if (keyword == "_let") {
-        let = true;
-    }
-    else if (keyword == "var") {
-        lhs = in.get();
+    while (1) {
+        std::string keyword = parse_keyword(in);
         
-        // make sure variable isn't more than one letter
-        while (in.peek() != ' ') {
-            char c = in.get();
-            lhs += c;
+        if (keyword == "_let") {
+            skip_whitespace(in);
+            
+            lhs = in.get();
+            
+            // make sure variable isn't more than one letter
+            while (in.peek() != ' ') {
+                char c = in.get();
+                lhs += c;
+            }
+            
+            skip_whitespace(in);
+            int c = in.get();
+            if (c != '=') {
+                throw std::runtime_error("invalid input");
+            }
+            skip_whitespace(in);
+            rhs = parse_expr(in);
         }
-        return new Let("x", new Num(0), new Add(new Variable("x"), new Num(3)));
+        else if (keyword == "_in") {
+            skip_whitespace(in);
+            body = parse_expr(in);
+            body_parsed = true;
+        }
+        
+        if (body_parsed) {
+            return new Let(lhs, rhs, body);
+        }
     }
-    
-    
-    skip_whitespace(in);
-    parse_let(in);
-    return new Let("x", new Num(0), new Add(new Variable("x"), new Num(3)));
-    
 }
 
 void Expr::pretty_print(std::ostream& out) {
@@ -320,13 +326,6 @@ void Add::pretty_print_at(print_mode_t mode, std::ostream& out) {
     }
 }
 
-//Expr* Add::parse(std::istream &in) {
-//    return new Add(new Num(1), new Num(1));
-//}
-//Expr* Add::parse_str(std::string s) {
-//    return new Add(new Num(1), new Num(1));
-//}
-
 // Mult Constructor implementation
 Mult::Mult(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
@@ -387,13 +386,6 @@ void Mult::pretty_print_at(print_mode_t mode, std::ostream& out) {
     }
 }
 
-//Expr* Mult::parse(std::istream &in) {
-//    return new Mult(new Num(1), new Num(1));
-//}
-//Expr* Mult::parse_str(std::string s) {
-//    return new Mult(new Num(1), new Num(1));
-//}
-
 // Variable Constructor implementation
 Variable::Variable(std::string string) {
     this->string = string;
@@ -444,13 +436,6 @@ std::string Variable::to_string() {
 void Variable::pretty_print_at(print_mode_t mode, std::ostream& out) {
     this->print(out);
 }
-
-//Expr* Variable::parse(std::istream &in) {
-//    return new Variable("x");
-//}
-//Expr* Variable::parse_str(std::string s) {
-//    return new Variable("x");
-//}
 
 /* Let Class *************************************************************/
 
@@ -508,13 +493,6 @@ std::string Let::to_string() {
 void Let::pretty_print_at(print_mode_t mode, std::ostream& out) {
     this->print(out);
 }
-
-//Expr* Let::parse(std::istream &in) {
-//    return new Let("x", new Num(3), new Add(new Num(1), new Num(1)));
-//}
-//Expr* Let::parse_str(std::string s) {
-//    return new Let("x", new Num(3), new Add(new Num(1), new Num(1)));
-//}
 
 /* TESTS *****************************************************************/
 

@@ -21,7 +21,7 @@ void use_arguments(int argc, const char * argv[])
         
         if (mainParameter == "--help")
         {
-            std::cout << "Arguments allowed: --help, --test\n";
+            std::cout << "Arguments allowed: --help, --test, --interp, --print, --pretty-print\n";
             exit(0);
         }
         else if (mainParameter == "--test")
@@ -42,9 +42,35 @@ void use_arguments(int argc, const char * argv[])
         }
         else if (mainParameter == "--interp") {
             while (1) {
-                // parse_expr is the top
+                
                 Expr * e = Expr::parse_expr(std::cin);
                 std::cout << e->interp() << std::endl;
+                
+                Expr::skip_whitespace(std::cin);
+                if (std::cin.eof()) {
+                    break;
+                }
+            }
+        }
+        else if (mainParameter == "--print") {
+            while (1) {
+                
+                Expr * e = Expr::parse_expr(std::cin);
+                e->print(std::cout);
+                std::cout << "\n";
+                
+                Expr::skip_whitespace(std::cin);
+                if (std::cin.eof()) {
+                    break;
+                }
+            }
+        }
+        else if (mainParameter == "--pretty-print") {
+            while (1) {
+                
+                Expr * e = Expr::parse_expr(std::cin);
+                e->pretty_print(std::cout);
+                std::cout << "\n";
                 
                 Expr::skip_whitespace(std::cin);
                 if (std::cin.eof()) {
