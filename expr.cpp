@@ -1,3 +1,4 @@
+
 //
 //  expr.cpp
 //  msd-script-cs6015
@@ -10,7 +11,212 @@
 #include <stdexcept>
 #include "catch.hpp"
 #include <sstream>
+#include <iostream>
 #define Var Variable
+
+// Parse wrapper for testing
+Expr *parse_str(std::string s) {
+    std::stringstream in(s);
+    return Expr::parse_expr(in);
+}
+
+// consumes char, checks if char consumed matches what is expected
+static void consume(std::istream &in, int expect) {
+    int c = in.get();
+    if (c != expect)
+        throw std::runtime_error("consume mismatch");
+}
+
+void Expr::skip_whitespace(std::istream &in) {
+    while (1) {
+        int c = in.peek();
+        if (!isspace(c)) {
+            break;
+        }
+        consume(in, c);
+    }
+}
+
+Expr* Expr::parse_num(std::istream &in) {
+    int n = 0;
+    bool negative = false;
+    
+    if (in.peek() == '-') {
+        negative = true;
+        consume(in, '-');
+    }
+    
+    while (1) {
+        int c = in.peek();
+        
+        if (c == ')' || c == '+' || c == '*') {
+            break;
+        }
+        
+        c = in.get();
+        if (isdigit(c))
+            n = n*10 + (c - '0');
+        else
+            break;
+    }
+    
+    if (negative) {
+        n = -n;
+    }
+    
+    return new Num(n);
+}
+
+// <addend> = <multicand> | <multicand> * <addend>
+Expr* Expr::parse_addend(std::istream &in) {
+    Expr *e;
+    
+    e = Expr::parse_multicand(in);
+    
+    Expr::skip_whitespace(in);
+    
+    int c = in.peek();
+    if (c == '*') {
+        consume(in, '*');
+        Expr *rhs = parse_addend(in);
+        return new Mult(e, rhs);
+    } else
+        return e;
+}
+
+// <expr> = <addend> | <addend> + <expr>
+Expr* Expr::parse_expr(std::istream &in) {
+    Expr *e;
+    
+    e = Expr::parse_addend(in);
+    
+    Expr::skip_whitespace(in);
+    
+    int c = in.peek();
+    if (c == '+') {
+        consume(in, '+');
+        Expr *rhs = parse_expr(in);
+        return new Add(e, rhs);
+    } else
+        return e;
+}
+
+// <expr> = <number> | (<expr>)
+Expr* Expr::parse_multicand(std::istream &in) {
+    skip_whitespace(in);
+    
+    int c = in.peek();
+    
+    // <number>
+    if ((c == '-') || isdigit(c))
+        return Expr::parse_num(in);
+    
+    // (<expr>)
+    else if (c == '(') {
+        consume(in, '(');
+        Expr *e = parse_expr(in);
+        Expr::skip_whitespace(in);
+        c = in.get();
+        if (c != ')')
+            throw std::runtime_error("missing closing parenthesis");
+        return e;
+    }
+        
+    // _let <variable> = <expr> _in <expr>
+    else if (c == '_') {
+    
+        Expr *e = parse_let(in);
+        return e;
+    }
+    
+    // <variable>
+    else if (isalpha(c)) {
+        
+        char c = in.get();
+        std::string var;
+        var += c;
+        
+        // make sure variable isn't more than one letter
+        while (in.peek() != ' ') {
+            char c = in.get();
+            var += c;
+        }
+        return new Variable(var);
+    }
+    
+    else {
+        consume(in, c); // + consumed here 1 + 1
+        throw std::runtime_error("invalid input");
+    }
+}
+
+std::string parse_keyword(std::istream &in) {
+    
+    int c = in.peek();
+    
+    if (c == '_') {
+        
+        consume(in, '_'); // consume '_'
+        int char1 = in.peek();
+        
+        if (char1 == 'l') {
+            std::string str = "let ";
+            for (int i = 0; i < str.length(); i++) {
+                consume(in, str[i]);
+            }
+            return "_let";
+        }
+            
+        else if (char1 == 'i') {
+            std::string str = "in ";
+            for (int i = 0; i < str.length(); i++) {
+                consume(in, str[i]);
+            }
+            return "_in";
+        }
+    }
+    throw std::runtime_error("invalid input");
+}
+
+Expr* Expr::parse_let(std::istream &in) {
+    std::string lhs;
+    Expr* rhs = nullptr;
+    Expr* body = nullptr;
+    bool body_parsed = false;
+    
+    while (1) {
+        std::string keyword = parse_keyword(in);
+        
+        if (keyword == "_let") {
+            skip_whitespace(in);
+            
+            lhs = in.get();
+            
+            // make sure variable isn't more than one letter
+            while (in.peek() != ' ') {
+                char c = in.get();
+                lhs += c;
+            }
+            
+            skip_whitespace(in);
+            int c = in.get();
+            if (c != '=') {
+                throw std::runtime_error("invalid input");
+            }
+            skip_whitespace(in);
+            rhs = parse_expr(in);
+        }
+        else if (keyword == "_in") {
+            skip_whitespace(in);
+            body = parse_expr(in);
+            body_parsed = true;
+        }
+        
+        if (body_parsed) {
+            return new Let(lhs, rhs, body);
+        }
+    }
+}
 
 void Expr::pretty_print(std::ostream& out) {
     this->pretty_print_at(print_group_none, out);
@@ -606,4 +812,24 @@ TEST_CASE( "pretty_print" ) {
     std::stringstream out2("");
     (new Let("x", new Num(5), new Add(new Let("y", new Num(3), new Add(new Variable("y"), new Num(2))), new Variable("x"))))->pretty_print(out2);
     CHECK( out2.str() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
+}
+
+TEST_CASE( "parse" ) {
+    
+    CHECK( (parse_str("x + 2"))->to_string() == "x + 2");
+    CHECK( (parse_str("x + (-2)"))->to_string() == "x + -2");
+    CHECK( (parse_str("(1 + 2)*3"))->to_string() == "(1 + 2) * 3");
+    CHECK( (parse_str("(1+2)*3"))->to_string() == "(1 + 2) * 3");
+    CHECK( (parse_str("(2*2)*3"))->to_string() == "(2 * 2) * 3");
+    CHECK( (parse_str("(2*2)+2*3"))->to_string() == "2 * 2 + 2 * 3");
+    
+    CHECK( (parse_str("2 + (-2)"))->interp() == 0);
+    CHECK( (parse_str("2 * 2 + 3"))->interp() == 7);
+    CHECK( (parse_str("(2 + 2) * 3"))->interp() == 12);
+    CHECK( (parse_str("(-2 + 2) * 3"))->interp() == 0);
+    CHECK( (parse_str("(2 + 2) * (-3)"))->interp() == -12);
+    
+    CHECK( (parse_str("_let x = 2 _in x + 2"))->interp() == 4);
+    CHECK( (parse_str("_let x = 2 _in x + 2"))->to_string()
+          == "(_let x=2 _in (x+2))");
 }
