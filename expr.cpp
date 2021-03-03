@@ -13,6 +13,12 @@
 #include <iostream>
 #define Var Variable
 
+// Parse wrapper for testing
+Expr *parse_str(std::string s) {
+    std::stringstream in(s);
+    return Expr::parse_expr(in);
+}
+
 // consumes char, checks if char consumed matches what is expected
 static void consume(std::istream &in, int expect) {
     int c = in.get();
@@ -42,7 +48,7 @@ Expr* Expr::parse_num(std::istream &in) {
     while (1) {
         int c = in.peek();
         
-        if (c == ')') {
+        if (c == ')' || c == '+' || c == '*') {
             break;
         }
         
@@ -809,6 +815,22 @@ TEST_CASE( "pretty_print" ) {
 
 TEST_CASE( "parse" ) {
     
+    CHECK( (parse_str("x + 2"))->to_string() == "x + 2");
+    CHECK( (parse_str("x + (-2)"))->to_string() == "x + -2");
+    CHECK( (parse_str("(1 + 2)*3"))->to_string() == "(1 + 2) * 3");
+    CHECK( (parse_str("(1+2)*3"))->to_string() == "(1 + 2) * 3");
+    CHECK( (parse_str("(2*2)*3"))->to_string() == "(2 * 2) * 3");
+    CHECK( (parse_str("(2*2)+2*3"))->to_string() == "2 * 2 + 2 * 3");
+    
+    CHECK( (parse_str("2 + (-2)"))->interp() == 0);
+    CHECK( (parse_str("2 * 2 + 3"))->interp() == 7);
+    CHECK( (parse_str("(2 + 2) * 3"))->interp() == 12);
+    CHECK( (parse_str("(-2 + 2) * 3"))->interp() == 0);
+    CHECK( (parse_str("(2 + 2) * (-3)"))->interp() == -12);
+    
+    CHECK( (parse_str("_let x = 2 _in x + 2"))->interp() == 4);
+    CHECK( (parse_str("_let x = 2 _in x + 2"))->to_string()
+          == "(_let x=2 _in (x+2))");
 }
 
 
