@@ -139,13 +139,13 @@ Expr* Expr::parse_multicand(std::istream &in) {
         var += c;
         
         // make sure variable isn't more than one letter
-        while (in.peek() != ' ') {
+        while (in.peek() != ' ' && in.peek() != -1) {
             char c = in.get();
             var += c;
         }
         return new Variable(var);
     }
-    
+        
     else {
         consume(in, c);
         throw std::runtime_error("invalid input");
@@ -163,7 +163,7 @@ std::string parse_keyword(std::istream &in) {
         
         if (char1 == 'l') {
             std::string str = "let ";
-            for (int i = 0; i < str.length(); i++) {
+            for (int i = 0; i < str.length(); i++) { // HERE
                 consume(in, str[i]);
             }
             return "_let";
@@ -823,6 +823,12 @@ TEST_CASE( "pretty_print" ) {
 
 TEST_CASE( "parse" ) {
     
+    CHECK( (parse_str("x"))->to_string() == "x");
+    CHECK_THROWS_WITH( (parse_str("x"))->interp(), "no value for variable");
+    CHECK( (parse_str("money"))->to_string() == "money");
+    CHECK( (parse_str("1"))->to_string() == "1");
+    CHECK( (parse_str("1"))->interp()->equals(new NumVal(1)));
+    
     CHECK( (parse_str("x + 2"))->to_string() == "x + 2");
     CHECK( (parse_str("year + 2"))->to_string() == "year + 2");
     CHECK( (parse_str("x + (-2)"))->to_string() == "x + -2");
@@ -838,10 +844,27 @@ TEST_CASE( "parse" ) {
     CHECK( (parse_str("(2 + 2) * (-3)"))->interp()->equals(new NumVal(-12)));
     
     CHECK( (parse_str("_let x = 2 _in x + 2"))->interp()->equals(new NumVal(4)));
+    CHECK( (parse_str("_let x = 2 _in x"))->interp()->equals(new NumVal(2)));
+    CHECK( (parse_str("_let x = 2 + 3 _in x"))->interp()->equals(new NumVal(5)));
+    CHECK( (parse_str("_let x = 2 + 3 _in x + 3"))->interp()->equals(new NumVal(8)));
+    CHECK( (parse_str("_let year = 2 _in year + 2"))->interp()->equals(new NumVal(4)));
+    
     CHECK( (parse_str("_let x = 2 _in x + 2"))->to_string()
           == "(_let x=2 _in (x+2))");
     CHECK( (parse_str("_let year = 2 _in year + 2"))->to_string()
           == "(_let year=2 _in (year+2))");
+    
+    CHECK( (parse_str("2 * (_let x = 2 + 3 _in x + 3)"))->interp()->equals(new NumVal(16)));
+    
+    CHECK( (parse_str("2 + (2 * (_let x = 2 + 3 _in x + 3))"))->interp()->equals(new NumVal(18)));
+    
+    CHECK( (parse_str("_let x = 2 + (2 * (_let x = 2 + 3 _in x + 3)) _in x + 2"))
+          ->interp()->equals(new NumVal(20)));
+          
+    CHECK( (parse_str("_let x = 2 + (2 * (_let x = 2 + 3 _in x + 3)) _in x * 2"))
+          ->interp()->equals(new NumVal(36)));
+    
+    CHECK( (parse_str("_let var = _let x = 2 + (2 * (_let x = 2 + 3 _in x + 3)) _in x * 2 _in _let x = 4 _in var + x"))->interp()->equals(new NumVal(40)));
     
     CHECK_THROWS_WITH( parse_str("(1"), "missing closing parenthesis" );
     CHECK_THROWS_WITH( parse_str("$ x = 1 _in x + 1"), "invalid input");
