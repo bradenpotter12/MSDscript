@@ -10,6 +10,7 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 #include "expr.hpp"
+#include "parse.hpp"
 
 void use_arguments(int argc, const char * argv[])
 {
@@ -43,10 +44,10 @@ void use_arguments(int argc, const char * argv[])
         else if (mainParameter == "--interp") {
             while (1) {
                 
-                Expr * e = Expr::parse_expr(std::cin);
+                Expr * e = Parse::parse_expr(std::cin);
                 std::cout << e->interp() << std::endl;
                 
-                Expr::skip_whitespace(std::cin);
+                Parse::skip_whitespace(std::cin);
                 if (std::cin.eof()) {
                     break;
                 }
@@ -55,11 +56,11 @@ void use_arguments(int argc, const char * argv[])
         else if (mainParameter == "--print") {
             while (1) {
                 
-                Expr * e = Expr::parse_expr(std::cin);
+                Expr * e = Parse::parse_expr(std::cin);
                 e->print(std::cout);
                 std::cout << "\n";
                 
-                Expr::skip_whitespace(std::cin);
+                Parse::skip_whitespace(std::cin);
                 if (std::cin.eof()) {
                     break;
                 }
@@ -68,11 +69,11 @@ void use_arguments(int argc, const char * argv[])
         else if (mainParameter == "--pretty-print") {
             while (1) {
                 
-                Expr * e = Expr::parse_expr(std::cin);
+                Expr * e = Parse::parse_expr(std::cin);
                 e->pretty_print(std::cout);
                 std::cout << "\n";
                 
-                Expr::skip_whitespace(std::cin);
+                Parse::skip_whitespace(std::cin);
                 if (std::cin.eof()) {
                     break;
                 }

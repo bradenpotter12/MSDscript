@@ -9,6 +9,7 @@
 #define val_hpp
 
 #include <stdio.h>
+#include <string>
 
 class Expr;
 
@@ -28,6 +29,20 @@ public:
     
     // constructor
     NumVal(int val);
+    
+    bool equals(Val *o);
+    int interp();
+    Expr* to_expr();
+    Val* add_to(Val *rhs);
+    Val* mult_to(Val *rhs);
+};
+
+class BoolVal : public Val {
+public:
+    
+    bool value;
+    
+    BoolVal(bool value);
     
     bool equals(Val *o);
     int interp();

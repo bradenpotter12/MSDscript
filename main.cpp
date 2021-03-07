@@ -11,12 +11,13 @@
 #include "expr.hpp"
 #include "catch.hpp"
 #include "val.hpp"
+#include "parse.hpp"
 
 
 
 Expr *parse_string(std::string s) {
     std::stringstream in(s);
-    return Expr::parse_expr(in);
+    return Parse::parse_expr(in);
 }
 
 int main(int argc, const char * argv[]) {

@@ -32,14 +32,6 @@ public:
     void pretty_print(std::ostream& out);
     virtual void pretty_print_at(print_mode_t mode, std::ostream& out) = 0;
     
-    // parse stuff
-    static Expr* parse_num(std::istream &in);
-    static Expr* parse_expr(std::istream &in);
-    static void skip_whitespace(std::istream &in);
-    static Expr* parse_multicand(std::istream &in);
-    static Expr* parse_addend(std::istream &in);
-    static Expr* parse_let(std::istream &in);
-    
 };
 
 // Num Class
@@ -80,13 +72,13 @@ public:
 };
 
 // Mult Class
-class Mult : public Expr {
+class MultExpr : public Expr {
 public:
     Expr *lhs;
     Expr *rhs;
     
     // constructor
-    Mult(Expr *lhs, Expr *rhs);
+    MultExpr(Expr *lhs, Expr *rhs);
     
     bool equals(Expr *o);
     Val* interp();
@@ -99,12 +91,12 @@ public:
 };
 
 // Variable Class
-class Variable : public Expr {
+class VarExpr : public Expr {
 public:
     std::string string;
     
     // constructor
-    Variable(std::string string);
+    VarExpr(std::string string);
     
     bool equals(Expr *o);
     Val* interp();
@@ -117,13 +109,13 @@ public:
 };
 
 // _let Class
-class Let : public Expr {
+class LetExpr : public Expr {
 public:
     std::string lhs;
     Expr *rhs;
     Expr *body;
     
-    Let(std::string lhs, Expr *rhs, Expr *body);
+    LetExpr(std::string lhs, Expr *rhs, Expr *body);
     
     bool equals(Expr *o);
     Val* interp();
@@ -134,3 +126,5 @@ public:
     void pretty_print_at(print_mode_t mode, std::ostream& out);
     
 };
+
+

@@ -52,5 +52,44 @@ Val* NumVal::mult_to(Val *rhs) {
 TEST_CASE( "equals" ) {
     CHECK( (new NumVal(5))->equals(new NumVal(5)));
     CHECK( (new NumVal(5))->equals(new NumVal(7)) == false);
-    CHECK( (new NumVal(5))->equals(NULL) == false);
+    CHECK( (new NumVal(5))->equals(new BoolVal(false)) == false);
+}
+
+BoolVal::BoolVal(bool value) {
+    this->value = value;
+}
+
+bool BoolVal::equals(Val *o) {
+    BoolVal *c = dynamic_cast<BoolVal*>(o);
+    if (c == NULL) {
+        return false;
+    }
+    return this->value == c->value;
+}
+
+int BoolVal::interp() {
+    return this->value;
+}
+
+Expr* BoolVal::to_expr() {
+    return NULL;
+}
+
+Val* BoolVal::add_to(Val *rhs) {
+    throw std::runtime_error("BoolVal cannot be added");
+}
+
+Val* BoolVal::mult_to(Val *rhs) {
+    throw std::runtime_error("BoolVal cannot be multiplied");
+}
+
+TEST_CASE( "BoolVal" ) {
+    CHECK( (new BoolVal(false))->interp() == false);
+    CHECK( (new BoolVal(false))->equals(new BoolVal(false)));
+    CHECK( (new BoolVal(false))->equals(new NumVal(4)) == false);
+    
+    CHECK_THROWS_WITH((new BoolVal(false))->add_to(new BoolVal(true)), "BoolVal cannot be added");
+    CHECK_THROWS_WITH((new BoolVal(false))->add_to(new NumVal(4)), "BoolVal cannot be added");
+    CHECK_THROWS_WITH( (new BoolVal(true))->mult_to(new BoolVal(true)), "BoolVal cannot be multiplied");
+    CHECK_THROWS_WITH( (new BoolVal(true))->mult_to(new NumVal(4)), "BoolVal cannot be multiplied");
 }
