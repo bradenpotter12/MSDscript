@@ -13,6 +13,8 @@
 		A274558825B7AEC700883B5C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A274558725B7AEC700883B5C /* main.cpp */; };
 		A274559525B7B7CF00883B5C /* cmdline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A274559325B7B7CF00883B5C /* cmdline.cpp */; };
 		A29072E025C1E64C00B6479F /* expr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A29072DD25C119DD00B6479F /* expr.cpp */; };
+		A29F87C125F01C3B009CC49A /* val.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A29F87BF25F01C3B009CC49A /* val.cpp */; };
+		A29F87C225F01C3B009CC49A /* val.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A29F87BF25F01C3B009CC49A /* val.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +42,8 @@
 		A29072D425BF679600B6479F /* catch.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = catch.hpp; sourceTree = "<group>"; };
 		A29072DD25C119DD00B6479F /* expr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = expr.cpp; sourceTree = "<group>"; };
 		A29072E225C3125F00B6479F /* expr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = expr.hpp; sourceTree = "<group>"; };
+		A29F87BF25F01C3B009CC49A /* val.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = val.cpp; sourceTree = "<group>"; };
+		A29F87C025F01C3B009CC49A /* val.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = val.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +101,8 @@
 				A274559425B7B7CF00883B5C /* cmdline.hpp */,
 				A29072DD25C119DD00B6479F /* expr.cpp */,
 				A29072E225C3125F00B6479F /* expr.hpp */,
+				A29F87BF25F01C3B009CC49A /* val.cpp */,
+				A29F87C025F01C3B009CC49A /* val.hpp */,
 				A29072D425BF679600B6479F /* catch.hpp */,
 			);
 			name = "msd-script-cs6015";
@@ -192,6 +198,10 @@
 				A22B032925CC404F0097B98F /* run.cpp in Sources */,
 				A22B032425CC3D8E0097B98F /* expr.cpp in Sources */,
 				A22B031D25CC3C140097B98F /* test.m in Sources */,
+<<<<<<< HEAD
+=======
+				A29F87C225F01C3B009CC49A /* val.cpp in Sources */,
+>>>>>>> work2
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -202,6 +212,7 @@
 				A274559525B7B7CF00883B5C /* cmdline.cpp in Sources */,
 				A274558825B7AEC700883B5C /* main.cpp in Sources */,
 				A29072E025C1E64C00B6479F /* expr.cpp in Sources */,
+				A29F87C125F01C3B009CC49A /* val.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
