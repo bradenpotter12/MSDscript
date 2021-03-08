@@ -127,4 +127,36 @@ public:
     
 };
 
+class EqExpr : public Expr {
+public:
+    
+    Expr *lhs;
+    Expr *rhs;
+    
+    EqExpr(Expr *lhs, Expr *rhs);
+    
+    bool equals(Expr *o);
+    Val* interp();
+    bool has_variable();
+    Expr* subst(std::string string, Expr *e);
+    void print(std::ostream& output);
+    std::string to_string();
+    void pretty_print_at(print_mode_t mode, std::ostream& out);
+};
+
+class BoolExpr : public Expr {
+public:
+    
+    Val* boolVal;
+    
+    BoolExpr(bool val);
+    
+    bool equals(Expr *o);
+    Val* interp();
+    bool has_variable();
+    Expr* subst(std::string string, Expr *replacement);
+    void print(std::ostream& output);
+    std::string to_string();
+    void pretty_print_at(print_mode_t mode, std::ostream& out);
+};
 

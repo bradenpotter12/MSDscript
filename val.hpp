@@ -16,7 +16,7 @@ class Expr;
 class Val {
 public:
     virtual bool equals(Val *o) = 0;
-    virtual int interp() = 0;
+    //virtual int interp() = 0;
     virtual Expr* to_expr() = 0;
     virtual Val* add_to(Val *rhs) = 0;
     virtual Val* mult_to(Val *rhs) = 0;

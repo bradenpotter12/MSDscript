@@ -16,6 +16,110 @@
 
 #define Var Variable
 
+EqExpr::EqExpr(Expr *lhs, Expr *rhs) {
+    this->lhs = lhs;
+    this->rhs = rhs;
+}
+
+bool EqExpr::equals(Expr *o) {
+    EqExpr *c = dynamic_cast<EqExpr*>(o);
+    if (c == NULL) {
+        return false;
+    }
+    return lhs->equals(c->lhs) && rhs->equals(c->rhs);
+}
+
+Val* EqExpr::interp() {
+    
+    if (lhs->interp()->equals(rhs->interp()))
+        return new BoolVal(true);
+    
+    return new BoolVal(false);
+}
+
+bool EqExpr::has_variable() {
+    return lhs->has_variable() || rhs->has_variable();
+}
+
+TEST_CASE( "EqExpr has_variable" ) {
+    CHECK( (new EqExpr(new VarExpr("x"), new NumExpr(new NumVal(1))))->has_variable() == true);
+    
+    CHECK( (new EqExpr(new NumExpr(new NumVal(1)), new VarExpr("x")))->has_variable() == true);
+}
+
+Expr* EqExpr::subst(std::string string, Expr *replacement) {
+     
+    return new EqExpr(lhs->subst(string, replacement), rhs->subst(string, replacement));
+}
+
+TEST_CASE( "EqExpr subst" ) {
+    CHECK( (new EqExpr(new VarExpr("x"), new VarExpr("x")))->subst("x", new VarExpr("z"))->equals(new EqExpr(new VarExpr("z"), new VarExpr("z"))));
+}
+
+void EqExpr::print(std::ostream& out) {
+    out << '(';
+    lhs->print(out);
+    out << '=';
+    rhs->print(out);
+    out << ')';
+}
+
+TEST_CASE( "EqExpr print" ) {
+    
+    {
+    std::stringstream out("");
+    (new EqExpr(new NumExpr(new NumVal(2)), new NumExpr(new NumVal(1))))->print(out);
+    CHECK( out.str() == "(2=1)" );
+    }
+    
+    std::stringstream out("");
+    (new EqExpr(new AddExpr(new NumExpr(new NumVal(2)), new NumExpr(new NumVal(3))), new NumExpr(new NumVal(2))))->print(out);
+    CHECK( out.str() == "((2+3)=2)");
+    
+}
+
+std::string EqExpr::to_string() {
+    std::stringstream out("");
+    this->print(out);
+    return out.str();
+}
+
+TEST_CASE( "EqExpr to_string" ) {
+    CHECK( ((new EqExpr(new AddExpr(new NumExpr(new NumVal(2)), new NumExpr(new NumVal(3))), new NumExpr(new NumVal(2)))))->to_string() == "((2+3)=2)");
+}
+
+void EqExpr::pretty_print_at(print_mode_t mode, std::ostream& out) {
+    this->print(out);
+}
+
+TEST_CASE( "EqExpr" ) {
+    
+    // Test equals()
+    CHECK( (new EqExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(1))))->equals(new EqExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(1)))));
+    
+    CHECK( (new EqExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(1))))->equals(new EqExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(2)))) == false);
+    
+    CHECK( (new EqExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(1))))->equals(new VarExpr("x")) == false);
+    
+    // Test interp()
+    CHECK( (new EqExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(2))))->interp()->equals(new BoolVal(false)) );
+
+    CHECK( (new EqExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(1))))->interp()->equals(new BoolVal(true)) );
+
+    CHECK( (new EqExpr(new AddExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(2))), new NumExpr(new NumVal(3))))->interp()->equals(new BoolVal(true)));
+    
+    Expr *let_6 = new LetExpr("x", new NumExpr(new NumVal(3)), new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(3))));
+    
+    CHECK( (new EqExpr(let_6, new NumExpr(new NumVal(6))))->interp()->equals(new BoolVal(true)));
+    
+    Expr *let_2 = new LetExpr("x", new NumExpr(new NumVal(2)), new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(2))));
+    
+    CHECK( (new EqExpr(new AddExpr(new NumExpr(new NumVal(2)), new NumExpr(new NumVal(2))), new NumExpr(new NumVal(4))))->interp()->equals(new BoolVal(true)));
+    
+    CHECK( (new EqExpr(new AddExpr(let_2, new NumExpr(new NumVal(2))), new NumExpr(new NumVal(6))))->interp()->equals(new BoolVal(true)));
+}
+
+
 void Expr::pretty_print(std::ostream& out) {
     this->pretty_print_at(print_group_none, out);
 }
@@ -46,12 +150,13 @@ bool NumExpr::has_variable() {
     return false;
 }
 
-Expr* NumExpr::subst(std::string string, Expr *e) {
+Expr* NumExpr::subst(std::string string, Expr *replacement) {
     return this;
 }
 
 void NumExpr::print(std::ostream &out) {
-    out << this->val->interp();
+    NumVal *c = dynamic_cast<NumVal*>(this->val);
+    out << c->interp();
 }
 
 std::string NumExpr::to_string() {
@@ -97,9 +202,9 @@ bool AddExpr::has_variable() {
     return this->lhs->has_variable() || this->rhs->has_variable();
 }
 
-Expr* AddExpr::subst(std::string string, Expr *exprSub) {
+Expr* AddExpr::subst(std::string string, Expr *replacement) {
     
-    return new AddExpr(this->lhs->subst(string, exprSub), this->rhs->subst(string, exprSub));
+    return new AddExpr(this->lhs->subst(string, replacement), this->rhs->subst(string, replacement));
 
 }
 
@@ -278,11 +383,11 @@ bool LetExpr::has_variable() {
     return body->has_variable() || rhs->has_variable();
 }
 
-Expr* LetExpr::subst(std::string string, Expr *e) {
+Expr* LetExpr::subst(std::string string, Expr *r) {
     if (lhs != string) {
-        return new LetExpr(lhs, rhs->subst(string, e), body->subst(string, e));
+        return new LetExpr(lhs, rhs->subst(string, r), body->subst(string, r));
     }
-    return new LetExpr(lhs, rhs->subst(string, e), body);
+    return new LetExpr(lhs, rhs->subst(string, r), body);
 }
 
 void LetExpr::print(std::ostream& out) {
@@ -306,7 +411,7 @@ void LetExpr::pretty_print_at(print_mode_t mode, std::ostream& out) {
 
 /* TESTS *****************************************************************/
 
-TEST_CASE( "Let" ) {
+TEST_CASE( "LetExpr" ) {
     
     // test constructor lhs
     CHECK( (new LetExpr("x", new NumExpr(new NumVal(5)), new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(5)))))->lhs == "x");
@@ -386,7 +491,7 @@ TEST_CASE("NumExpr") {
 }
 
 // test constructor and equals implementations
-TEST_CASE("Add") {
+TEST_CASE("AddExpr") {
     NumExpr *a = new NumExpr(new NumVal(3));
     NumExpr *b = new NumExpr(new NumVal(5));
     AddExpr *expr1 = new AddExpr(a, b);
@@ -400,10 +505,16 @@ TEST_CASE("Add") {
     CHECK(expr1->equals(expr2) == false);
     AddExpr *expr3 = new AddExpr(a, b);
     CHECK(expr1->equals(expr3));
+    
+    Expr *let = new LetExpr("x", new NumExpr(new NumVal(1)), new VarExpr("x"));
+    
+    CHECK( (let->interp()->equals(new NumVal(1))));
+    CHECK( (new AddExpr(let, new NumExpr(new NumVal(1))))->interp()->equals(new NumVal(2)));
+    
 }
 
 // test constructor and equals implementations
-TEST_CASE("Mult") {
+TEST_CASE("MultExpr") {
     NumExpr *a = new NumExpr(new NumVal(3));
     NumExpr *b = new NumExpr(new NumVal(5));
     MultExpr *expr1 = new MultExpr(a, b);
@@ -421,7 +532,7 @@ TEST_CASE("Mult") {
           ->equals(new VarExpr("x")) == false);
 }
 
-TEST_CASE("Variable") {
+TEST_CASE("VarExpr") {
     VarExpr *a = new VarExpr("cat");
     VarExpr *b = new VarExpr("b");
     CHECK(a->string == "cat");
