@@ -39,7 +39,8 @@ void BoolExpr::print(std::ostream& out) {
     if (this->boolVal->equals(new BoolVal(true))) {
         out << "_true";
     }
-    out << "_false";
+    else
+        out << "_false";
 }
 
 std::string BoolExpr::to_string() {
@@ -70,4 +71,13 @@ TEST_CASE( "BoolExpr" ) {
         (new BoolExpr(true))->print(out);
         CHECK( (out.str() == "_true"));
     }
+    
+    {
+        std::stringstream out("");
+        (new BoolExpr(false))->print(out);
+        CHECK( (out.str() == "_false"));
+    }
+    
+    CHECK( (new BoolExpr(true))->to_string() == "_true");
+    CHECK( (new BoolExpr(false))->to_string() == "_false");
 }

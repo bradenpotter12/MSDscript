@@ -160,3 +160,21 @@ public:
     void pretty_print_at(print_mode_t mode, std::ostream& out);
 };
 
+class IfExpr : public Expr {
+public:
+    
+    Expr *ifExpr;
+    Expr *thenExpr;
+    Expr *elseExpr;
+    
+    IfExpr(Expr *ifExpr, Expr *thenExpr, Expr *elseExpr);
+    
+    bool equals(Expr *o);
+    Val* interp();
+    bool has_variable();
+    Expr* subst(std::string string, Expr *replacement);
+    void print(std::ostream& output);
+    std::string to_string();
+    void pretty_print_at(print_mode_t mode, std::ostream& out);
+};
+

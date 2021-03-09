@@ -59,7 +59,7 @@ TEST_CASE( "EqExpr subst" ) {
 void EqExpr::print(std::ostream& out) {
     out << '(';
     lhs->print(out);
-    out << '=';
+    out << "==";
     rhs->print(out);
     out << ')';
 }
@@ -69,12 +69,12 @@ TEST_CASE( "EqExpr print" ) {
     {
     std::stringstream out("");
     (new EqExpr(new NumExpr(new NumVal(2)), new NumExpr(new NumVal(1))))->print(out);
-    CHECK( out.str() == "(2=1)" );
+    CHECK( out.str() == "(2==1)" );
     }
     
     std::stringstream out("");
     (new EqExpr(new AddExpr(new NumExpr(new NumVal(2)), new NumExpr(new NumVal(3))), new NumExpr(new NumVal(2))))->print(out);
-    CHECK( out.str() == "((2+3)=2)");
+    CHECK( out.str() == "((2+3)==2)");
     
 }
 
@@ -85,7 +85,7 @@ std::string EqExpr::to_string() {
 }
 
 TEST_CASE( "EqExpr to_string" ) {
-    CHECK( ((new EqExpr(new AddExpr(new NumExpr(new NumVal(2)), new NumExpr(new NumVal(3))), new NumExpr(new NumVal(2)))))->to_string() == "((2+3)=2)");
+    CHECK( ((new EqExpr(new AddExpr(new NumExpr(new NumVal(2)), new NumExpr(new NumVal(3))), new NumExpr(new NumVal(2)))))->to_string() == "((2+3)==2)");
 }
 
 void EqExpr::pretty_print_at(print_mode_t mode, std::ostream& out) {

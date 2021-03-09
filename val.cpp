@@ -72,7 +72,7 @@ int BoolVal::interp() {
 }
 
 Expr* BoolVal::to_expr() {
-    return NULL;
+    return new BoolExpr(this->interp());
 }
 
 Val* BoolVal::add_to(Val *rhs) {
@@ -92,4 +92,7 @@ TEST_CASE( "BoolVal" ) {
     CHECK_THROWS_WITH((new BoolVal(false))->add_to(new NumVal(4)), "BoolVal cannot be added");
     CHECK_THROWS_WITH( (new BoolVal(true))->mult_to(new BoolVal(true)), "BoolVal cannot be multiplied");
     CHECK_THROWS_WITH( (new BoolVal(true))->mult_to(new NumVal(4)), "BoolVal cannot be multiplied");
+    
+    CHECK( (new BoolVal(true))->to_expr()->equals(new BoolExpr(true)));
+    CHECK( (new NumVal(1))->to_expr()->equals(new NumExpr(new NumVal(1))));
 }

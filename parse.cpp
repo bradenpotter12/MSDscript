@@ -45,7 +45,7 @@ Expr* Parse::parse_num(std::istream &in) {
     while (1) {
         int c = in.peek();
         
-        if (c == ')' || c == '+' || c == '*') {
+        if (c == ')' || c == '+' || c == '*' || c == '=') {
             break;
         }
         
@@ -80,8 +80,37 @@ Expr* Parse::parse_addend(std::istream &in) {
         return e;
 }
 
-// <expr> = <addend> | <addend> + <expr>
+// <expr> = <comparg> | <comparg> == <expr>
 Expr* Parse::parse_expr(std::istream &in) {
+    Expr *e;
+    
+    e = Parse::parse_comparg(in);
+    
+    Parse::skip_whitespace(in);
+    
+    int c = in.peek();
+    if (c == '=') {
+        consume(in, '=');
+        consume(in, '=');
+        Expr *rhs = parse_expr(in);
+        return new EqExpr(e, rhs);
+    } else
+        return e;
+}
+
+TEST_CASE( "parse_expr" ) {
+    CHECK( (new EqExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(1))))->to_string() == "(1==1)");
+    
+    CHECK( parse_str("1+2==3")->to_string() == "((1+2)==3)");
+    CHECK( parse_str("1+2==3")->equals(new EqExpr(new AddExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(2))), new NumExpr(new NumVal(3)))));
+    
+    CHECK( (parse_str("1 + 2")->interp()->equals(new NumVal(3))));
+    CHECK( (parse_str("1+2==3"))->interp()->equals(new BoolVal(true)));
+    CHECK( (parse_str("1+2==2"))->interp()->equals(new BoolVal(false)));
+}
+
+// <comparg> = <addend> | <addend> + <comparg>
+Expr* Parse::parse_comparg(std::istream &in) {
     Expr *e;
     
     e = Parse::parse_addend(in);
@@ -91,10 +120,80 @@ Expr* Parse::parse_expr(std::istream &in) {
     int c = in.peek();
     if (c == '+') {
         consume(in, '+');
-        Expr *rhs = parse_expr(in);
+        Expr *rhs = parse_comparg(in);
         return new AddExpr(e, rhs);
     } else
         return e;
+}
+
+std::string parse_keyword(std::istream &in) {
+    
+    consume(in, '_'); // consume '_'
+    int next_ch = in.peek();
+    
+    if (next_ch == 'l') {
+
+        return "_let";
+    }
+    
+    else if (next_ch == 'i') {
+
+        return "_if";
+    }
+    
+    else if (next_ch == 't') {
+
+        return "_true";
+    }
+    
+    else if (next_ch == 'f') {
+
+        return "_false";
+    }
+    
+    throw std::runtime_error("invalid input");
+}
+
+Expr* parse_if(std::istream &in) {
+    
+    std::string str = "if";
+    for (int i = 0; i < str.length(); i++) {
+        consume(in, str[i]);
+    }
+    
+    Expr* ifExpr = Parse::parse_expr(in);
+    
+    Parse::skip_whitespace(in);
+    
+    std::string str2 = "_then";
+    for (int i = 0; i < str2.length(); i++) {
+        consume(in, str2[i]);
+    }
+    
+    Expr* thenExpr = Parse::parse_expr(in);
+    
+    Parse::skip_whitespace(in);
+    
+    std::string str3 = "_else";
+    for (int i = 0; i < str3.length(); i++) {
+        consume(in, str3[i]);
+    }
+    
+    Expr* elseExpr = Parse::parse_expr(in);
+    
+    return new IfExpr(ifExpr, thenExpr, elseExpr);
+    
+}
+
+TEST_CASE( "parse_if" ) {
+    
+    CHECK( (parse_str("_if _true _then _false _else _true"))->interp()->equals(new BoolVal(false)));
+    
+    CHECK( (parse_str("_if _false _then _false _else _true"))->interp()->equals(new BoolVal(true)));
+    
+    CHECK( (parse_str("_if 1 == 1 _then _false _else _true"))->interp()->equals(new BoolVal(false)));
+    
+    CHECK( (parse_str("_if 1 == 2 _then _false _else _true"))->interp()->equals(new BoolVal(true)));
 }
 
 // <expr> = <number> | (<expr>)
@@ -110,7 +209,7 @@ Expr* Parse::parse_multicand(std::istream &in) {
     // (<expr>)
     else if (c == '(') {
         consume(in, '(');
-        Expr *e = parse_expr(in);
+        Expr *e = parse_comparg(in);
         Parse::skip_whitespace(in);
         c = in.get();
         if (c != ')')
@@ -120,9 +219,36 @@ Expr* Parse::parse_multicand(std::istream &in) {
         
     // _let <variable> = <expr> _in <expr>
     else if (c == '_') {
-    
-        Expr *e = parse_let(in);
-        return e;
+        
+        std::string kw = parse_keyword(in);
+        
+        if (kw == "_let") {
+            Expr *e = parse_let(in);
+            return e;
+        }
+        else if (kw == "_true") {
+            
+            std::string str = "true";
+            for (int i = 0; i < str.length(); i++) {
+                consume(in, str[i]);
+            }
+            
+            return new BoolExpr(true);
+        }
+        else if (kw == "_false") {
+            
+            std::string str = "false";
+            for (int i = 0; i < str.length(); i++) {
+                consume(in, str[i]);
+            }
+            
+            return new BoolExpr(false);
+        }
+        else if (kw == "_if") {
+            return parse_if(in);
+        }
+        
+        throw std::runtime_error("invalid input");
     }
     
     // <variable>
@@ -146,32 +272,10 @@ Expr* Parse::parse_multicand(std::istream &in) {
     }
 }
 
-std::string parse_keyword(std::istream &in) {
-    
-    int c = in.peek();
-    
-    if (c == '_') {
-        
-        consume(in, '_'); // consume '_'
-        int char1 = in.peek();
-        
-        if (char1 == 'l') {
-            std::string str = "let ";
-            for (int i = 0; i < str.length(); i++) { // HERE
-                consume(in, str[i]);
-            }
-            return "_let";
-        }
-            
-        else if (char1 == 'i') {
-            std::string str = "in ";
-            for (int i = 0; i < str.length(); i++) {
-                consume(in, str[i]);
-            }
-            return "_in";
-        }
-    }
-    throw std::runtime_error("invalid input");
+TEST_CASE( "parse_multicand" ) {
+    CHECK( (parse_str("_false"))->equals(new BoolExpr(false)));
+    CHECK( (parse_str("_true"))->equals(new BoolExpr(true)));
+    CHECK_THROWS_WITH(parse_str("_r"), "invalid input");
 }
 
 Expr* Parse::parse_let(std::istream &in) {
@@ -181,15 +285,23 @@ Expr* Parse::parse_let(std::istream &in) {
     bool body_parsed = false;
     
     while (1) {
-        std::string keyword = parse_keyword(in);
         
-        if (keyword == "_let") {
-            skip_whitespace(in);
+        int next_ch = in.peek();
+        
+        if (next_ch == 'l') {
+            
+            std::string str = "let";
+            for (int i = 0; i < str.length(); i++) {
+                consume(in, str[i]);
+            }
+            
+            Parse::skip_whitespace(in);
             
             lhs = in.get();
             
             // make sure variable isn't more than one letter
-            while (in.peek() != ' ') {
+            while (in.peek() != ' ' && in.peek() != '=') {
+                
                 char c = in.get();
                 lhs += c;
             }
@@ -200,11 +312,18 @@ Expr* Parse::parse_let(std::istream &in) {
                 throw std::runtime_error("invalid input");
             }
             skip_whitespace(in);
-            rhs = parse_expr(in);
+            rhs = parse_comparg(in);
         }
-        else if (keyword == "_in") {
-            skip_whitespace(in);
-            body = parse_expr(in);
+        else if (next_ch == '_') {
+            
+            std::string str = "_in";
+            for (int i = 0; i < str.length(); i++) {
+                consume(in, str[i]);
+            }
+            
+            Parse::skip_whitespace(in);
+            
+            body = parse_comparg(in);
             body_parsed = true;
         }
         
@@ -263,10 +382,11 @@ TEST_CASE( "parse" ) {
     CHECK_THROWS_WITH( parse_str("$ x = 1 _in x + 1"), "invalid input");
     {
     std::stringstream in('$');
-    CHECK_THROWS_WITH( parse_keyword(in), "invalid input");
+    CHECK_THROWS_WITH( Parse::parse_expr(in), "invalid input");
     }
     
     std::stringstream in("_let x *");
-    CHECK_THROWS_WITH( Parse::parse_let(in), "invalid input");
+    CHECK_THROWS_WITH( Parse::parse_expr(in), "invalid input");
+    
     CHECK_THROWS_WITH( parse_str("_l$et"), "consume mismatch");
 }
