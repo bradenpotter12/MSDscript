@@ -10,13 +10,13 @@
 #include "expr.hpp"
 #include "catch.hpp"
 
-FunVal::FunVal(std::string formal_arg, Expr *body) {
+FunVal::FunVal(std::string formal_arg, PTR(Expr) body) {
     this->formal_arg = formal_arg;
     this->body = body;
 }
 
-bool FunVal::equals(Val *o) {
-    FunVal *c = dynamic_cast<FunVal*>(o);
+bool FunVal::equals(PTR(Val) other_val) {
+    PTR(FunVal) c = CAST(FunVal)(other_val);
     if (c == NULL) {
         return false;
     }
@@ -25,37 +25,37 @@ bool FunVal::equals(Val *o) {
 
 TEST_CASE( "FunVal equals" ) {
     
-    CHECK( (new FunVal("x", new VarExpr("y")))->equals(new FunVal("x", new VarExpr("y"))));
+    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y")))->equals(NEW(FunVal)("x", NEW(VarExpr)("y"))));
     
-    CHECK( (new FunVal("x", new VarExpr("y")))->equals(new BoolVal(true)) == false);
+    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y")))->equals(NEW(BoolVal)(true)) == false);
 }
 
 // I don't think this is needed
 int FunVal::interp() {
-    NumVal *c = dynamic_cast<NumVal*>(body->interp());
+    PTR(NumVal) c = CAST(NumVal)(body->interp());
     if (c == NULL) {
         throw std::runtime_error("Expr should interp to NumVal");
     }
     return c->interp();
 }
 
-Expr* FunVal::to_expr() {
-    return new FunExpr(formal_arg, body);
+PTR(Expr) FunVal::to_expr() {
+    return NEW(FunExpr)(formal_arg, body);
 }
 
-Val* FunVal::add_to(Val *rhs) {
+PTR(Val) FunVal::add_to(PTR(Val) rhs) {
     throw std::runtime_error("FunVal's cannot be added");
 }
 
-Val* FunVal::mult_to(Val *rhs) {
+PTR(Val) FunVal::mult_to(PTR(Val) rhs) {
     throw std::runtime_error("FunVal's cannot be multiplied");
 }
 
 TEST_CASE( "FunVal add_to & mult_to") {
     
-    CHECK_THROWS_WITH((new FunVal("x", new VarExpr("y")))->add_to(new NumVal(2)), "FunVal's cannot be added");
+    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(VarExpr)("y")))->add_to(NEW(NumVal)(2)), "FunVal's cannot be added");
     
-    CHECK_THROWS_WITH((new FunVal("x", new VarExpr("y")))->mult_to(new NumVal(2)), "FunVal's cannot be multiplied");
+    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(VarExpr)("y")))->mult_to(NEW(NumVal)(2)), "FunVal's cannot be multiplied");
 }
 
 std::string FunVal::to_string() {
@@ -70,7 +70,7 @@ void FunVal::print(std::ostream &out) {
     body->print(out);
 }
 
-Val* FunVal::call(Val *actual_arg) {
+PTR(Val) FunVal::call(PTR(Val) actual_arg) {
     body = body->subst(formal_arg, actual_arg->to_expr());
     
     return body->interp();
@@ -78,10 +78,10 @@ Val* FunVal::call(Val *actual_arg) {
 
 TEST_CASE( "CallExpr interp" ) {
     
-    CHECK( (new CallExpr(new FunExpr("x", new VarExpr("x")), new NumExpr(new NumVal(2))))->interp()->equals(new NumVal(2)));
+    CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("x")), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(2)));
     
-    CHECK( (new CallExpr(new FunExpr("x", new MultExpr(new VarExpr("x"), new VarExpr("x"))), new NumExpr(new NumVal(2))))->interp()->equals(new NumVal(4)));
+    CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x"))), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(4)));
     
-    CHECK_THROWS_WITH( (new CallExpr(new FunExpr("x", new VarExpr("y")), new NumExpr(new NumVal(2))))->interp()->equals(new NumVal(2)), "no value for variable");
+    CHECK_THROWS_WITH( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("y")), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(2)), "no value for variable");
 }
 

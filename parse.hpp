@@ -10,20 +10,21 @@
 
 #include <stdio.h>
 #include <sstream>
+#include "pointer.h"
 
 class Expr;
 
 class Parse {
 public:
     
-    static Expr* parse_num(std::istream &in);
-    static Expr* parse_comparg(std::istream &in);
-    static Expr* parse_expr(std::istream &in);
+    static PTR(Expr) parse_num(std::istream &in);
+    static PTR(Expr) parse_comparg(std::istream &in);
+    static PTR(Expr) parse_expr(std::istream &in);
     static void skip_whitespace(std::istream &in);
-    static Expr* parse_inner(std::istream &in);
-    static Expr* parse_multicand(std::istream &in);
-    static Expr* parse_addend(std::istream &in);
-    static Expr* parse_let(std::istream &in);
+    static PTR(Expr) parse_inner(std::istream &in);
+    static PTR(Expr) parse_multicand(std::istream &in);
+    static PTR(Expr) parse_addend(std::istream &in);
+    static PTR(Expr) parse_let(std::istream &in);
 };
 
 #endif /* parse_hpp */

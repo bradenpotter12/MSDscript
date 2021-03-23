@@ -15,7 +15,7 @@
 
 
 
-Expr *parse_string(std::string s) {
+PTR(Expr) parse_string(std::string s) {
     std::stringstream in(s);
     return Parse::parse_expr(in);
 }
@@ -26,14 +26,14 @@ int main(int argc, const char * argv[]) {
 //    std::string string = "2 * 2 + _let x = 3 _in x + 3";
 //    std::string str = "";
 //
-//    Expr *e = parse_string(string);
-//    Val *o = e->interp();
+//    PTR(Expr) e = parse_string(string);
+//    PTR(Val) o = e->interp();
 //
-//    std::cout << o->interp() << "\n";
-    
-    //std::cout << (new EqExpr(new BoolExpr(true), new BoolExpr(true)))->to_string() << "\n";
-    
-//    Expr *expr = parse_string("(_fun (x) x*x)(4)");
+//    std::cout << o->to_string() << "\n";
+//    
+//    std::cout << (NEW(EqExpr) (NEW(BoolExpr)(true), NEW(BoolExpr)(true)))->to_string() << "\n";
+//
+//    PTR(Expr) expr = parse_string("(_fun (x) x*x)(4)");
 //
 //    std::cout << expr->interp()->to_string() << "\n";
     

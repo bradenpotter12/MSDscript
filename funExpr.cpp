@@ -10,13 +10,13 @@
 #include "val.hpp"
 #include "catch.hpp"
 
-FunExpr::FunExpr(std::string formal_arg, Expr *body) {
+FunExpr::FunExpr(std::string formal_arg, PTR(Expr) body) {
     this->formal_arg = formal_arg;
     this->body = body;
 }
 
-bool FunExpr::equals(Expr *o) {
-    FunExpr *c = dynamic_cast<FunExpr*>(o);
+bool FunExpr::equals(PTR(Expr) other_expr) {
+    PTR(FunExpr) c = CAST(FunExpr)(other_expr);
     if (c == NULL) {
         return false;
     }
@@ -24,28 +24,28 @@ bool FunExpr::equals(Expr *o) {
 }
 
 TEST_CASE( "FunExpr equals" ) {
-    CHECK( (new FunExpr("x", new VarExpr("y")))->equals(new BoolExpr(true)) == false);
+    CHECK( (NEW(FunExpr)("x", NEW(VarExpr)("y")))->equals(NEW(BoolExpr)(true)) == false);
     
     std::stringstream out("");
-    (new FunExpr("x", new VarExpr("y")))->pretty_print(out);
+    (NEW(FunExpr)("x", NEW(VarExpr)("y")))->pretty_print(out);
     CHECK( out.str() == "_fun (x) y");
 }
 
-Val* FunExpr::interp() {
-    return new FunVal(formal_arg, body);
+PTR(Val)  FunExpr::interp() {
+    return NEW(FunVal)(formal_arg, body);
 }
 
-Expr* FunExpr::subst(std::string string, Expr *replacement) {
-    if (string != formal_arg) {
-        return new FunExpr(formal_arg, body->subst(string, replacement));
+PTR(Expr) FunExpr::subst(std::string string, PTR(Expr) replacement) {
+    if (string == formal_arg) {
+        return THIS;
     }
-    return this;
+    return NEW(FunExpr)(formal_arg, body->subst(string, replacement)); // TODO:  subst supposed to substitue formal_arg and body?
 }
 
 TEST_CASE( "FunExpr subst" ) {
-    CHECK( (new FunExpr("x", new VarExpr("y")))->subst("y", new VarExpr("z"))->equals(new FunExpr("x", new VarExpr("z"))));
+    CHECK( (NEW(FunExpr)("x", NEW(VarExpr)("y")))->subst("y", NEW(VarExpr)("z"))->equals(NEW(FunExpr)("x", NEW(VarExpr)("z"))));
     
-    CHECK( (new FunExpr("x", new VarExpr("y")))->subst("x", new VarExpr("z"))->equals(new FunExpr("x", new VarExpr("y"))));
+    CHECK( (NEW(FunExpr)("x", NEW(VarExpr)("y")))->subst("x", NEW(VarExpr)("z"))->equals(NEW(FunExpr)("x", NEW(VarExpr)("y"))));
 }
 
 void FunExpr::print(std::ostream& out) {

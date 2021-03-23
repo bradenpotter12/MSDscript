@@ -11,7 +11,7 @@
 #include "expr.hpp"
 
 // Parse wrapper for testing
-Expr *parse_str(std::string s) {
+PTR(Expr) parse_str(std::string s) {
     std::stringstream in(s);
     return Parse::parse_expr(in);
 }
@@ -33,7 +33,7 @@ void Parse::skip_whitespace(std::istream &in) {
     }
 }
 
-Expr* Parse::parse_num(std::istream &in) {
+PTR(Expr) Parse::parse_num(std::istream &in) {
     int n = 0;
     bool negative = false;
     
@@ -60,12 +60,12 @@ Expr* Parse::parse_num(std::istream &in) {
         n = -n;
     }
    
-    return (new NumVal(n))->to_expr();
+    return (NEW(NumVal)(n))->to_expr();
 }
 
 // <addend> = <multicand> | <multicand> * <addend>
-Expr* Parse::parse_addend(std::istream &in) {
-    Expr *e;
+PTR(Expr) Parse::parse_addend(std::istream &in) {
+    PTR(Expr) e;
     
     e = Parse::parse_multicand(in);
     
@@ -74,15 +74,15 @@ Expr* Parse::parse_addend(std::istream &in) {
     int c = in.peek();
     if (c == '*') {
         consume(in, '*');
-        Expr *rhs = parse_addend(in);
-        return new MultExpr(e, rhs);
+        PTR(Expr) rhs = parse_addend(in);
+        return NEW(MultExpr)(e, rhs);
     } else
         return e;
 }
 
 // <expr> = <comparg> | <comparg> == <expr>
-Expr* Parse::parse_expr(std::istream &in) {
-    Expr *e;
+PTR(Expr) Parse::parse_expr(std::istream &in) {
+    PTR(Expr) e;
     
     e = Parse::parse_comparg(in);
     
@@ -92,26 +92,26 @@ Expr* Parse::parse_expr(std::istream &in) {
     if (c == '=') {
         consume(in, '=');
         consume(in, '=');
-        Expr *rhs = parse_expr(in);
-        return new EqExpr(e, rhs);
+        PTR(Expr) rhs = parse_expr(in);
+        return NEW(EqExpr)(e, rhs);
     } else
         return e;
 }
 
 TEST_CASE( "parse_expr" ) {
-    CHECK( (new EqExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(1))))->to_string() == "(1==1)");
+    CHECK( (NEW(EqExpr)(NEW(NumExpr)(NEW(NumVal)(1)), NEW(NumExpr)(NEW(NumVal)(1))))->to_string() == "(1==1)");
     
     CHECK( parse_str("1+2==3")->to_string() == "((1+2)==3)");
-    CHECK( parse_str("1+2==3")->equals(new EqExpr(new AddExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(2))), new NumExpr(new NumVal(3)))));
+    CHECK( parse_str("1+2==3")->equals(NEW(EqExpr)(NEW(AddExpr)(NEW(NumExpr)(NEW(NumVal)(1)), NEW(NumExpr)(NEW(NumVal)(2))), NEW(NumExpr)(NEW(NumVal)(3)))));
     
-    CHECK( (parse_str("1 + 2")->interp()->equals(new NumVal(3))));
-    CHECK( (parse_str("1+2==3"))->interp()->equals(new BoolVal(true)));
-    CHECK( (parse_str("1+2==2"))->interp()->equals(new BoolVal(false)));
+    CHECK( (parse_str("1 + 2")->interp()->equals(NEW(NumVal)(3))));
+    CHECK( (parse_str("1+2==3"))->interp()->equals(NEW(BoolVal)(true)));
+    CHECK( (parse_str("1+2==2"))->interp()->equals(NEW(BoolVal)(false)));
 }
 
 // <comparg> = <addend> | <addend> + <comparg>
-Expr* Parse::parse_comparg(std::istream &in) {
-    Expr *e;
+PTR(Expr) Parse::parse_comparg(std::istream &in) {
+    PTR(Expr) e;
     
     e = Parse::parse_addend(in);
     
@@ -120,8 +120,8 @@ Expr* Parse::parse_comparg(std::istream &in) {
     int c = in.peek();
     if (c == '+') {
         consume(in, '+');
-        Expr *rhs = parse_comparg(in);
-        return new AddExpr(e, rhs);
+        PTR(Expr) rhs = parse_comparg(in);
+        return NEW(AddExpr)(e, rhs);
     } else
         return e;
 }
@@ -159,14 +159,14 @@ std::string parse_keyword(std::istream &in) {
     throw std::runtime_error("invalid input");
 }
 
-Expr* parse_if(std::istream &in) {
+PTR(Expr) parse_if(std::istream &in) {
     
     std::string str = "if";
     for (int i = 0; i < str.length(); i++) {
         consume(in, str[i]);
     }
     
-    Expr* ifExpr = Parse::parse_expr(in);
+    PTR(Expr) ifExpr = Parse::parse_expr(in);
     
     Parse::skip_whitespace(in);
     
@@ -175,7 +175,7 @@ Expr* parse_if(std::istream &in) {
         consume(in, str2[i]);
     }
     
-    Expr* thenExpr = Parse::parse_expr(in);
+    PTR(Expr) thenExpr = Parse::parse_expr(in);
     
     Parse::skip_whitespace(in);
     
@@ -184,36 +184,36 @@ Expr* parse_if(std::istream &in) {
         consume(in, str3[i]);
     }
     
-    Expr* elseExpr = Parse::parse_expr(in);
+    PTR(Expr) elseExpr = Parse::parse_expr(in);
     
-    return new IfExpr(ifExpr, thenExpr, elseExpr);
+    return NEW(IfExpr)(ifExpr, thenExpr, elseExpr);
     
 }
 
 TEST_CASE( "parse_if" ) {
     
-    CHECK( (parse_str("_if _true _then _false _else _true"))->interp()->equals(new BoolVal(false)));
+    CHECK( (parse_str("_if _true _then _false _else _true"))->interp()->equals(NEW(BoolVal)(false)));
     
-    CHECK( (parse_str("_if _false _then _false _else _true"))->interp()->equals(new BoolVal(true)));
+    CHECK( (parse_str("_if _false _then _false _else _true"))->interp()->equals(NEW(BoolVal)(true)));
     
-    CHECK( (parse_str("_if 1 == 1 _then _false _else _true"))->interp()->equals(new BoolVal(false)));
+    CHECK( (parse_str("_if 1 == 1 _then _false _else _true"))->interp()->equals(NEW(BoolVal)(false)));
     
-    CHECK( (parse_str("_if 1 == 2 _then _false _else _true"))->interp()->equals(new BoolVal(true)));
+    CHECK( (parse_str("_if 1 == 2 _then _false _else _true"))->interp()->equals(NEW(BoolVal)(true)));
 }
 
 // <inner> | <multicand>(<expr>)
-Expr* Parse::parse_multicand(std::istream &in) {
-    Expr *expr = parse_inner(in);
+PTR(Expr) Parse::parse_multicand(std::istream &in) {
+    PTR(Expr) expr = parse_inner(in);
     while (in.peek() == '(') {
         consume(in, '(');
-        Expr *actual_arg = parse_expr(in);
+        PTR(Expr) actual_arg = parse_expr(in);
         consume(in, ')');
-        expr = new CallExpr(expr, actual_arg);
+        expr = NEW(CallExpr)(expr, actual_arg);
     }
     return expr;
 }
 
-Expr* parse_fun(std::istream &in) {
+PTR(Expr) parse_fun(std::istream &in) {
     
     consume(in, 'n');
     Parse::skip_whitespace(in);
@@ -233,13 +233,13 @@ Expr* parse_fun(std::istream &in) {
     consume(in, ')');
     Parse::skip_whitespace(in);
     
-    Expr *body = Parse::parse_expr(in);
+    PTR(Expr) body = Parse::parse_expr(in);
     
-    return new FunExpr(formal_arg, body);
+    return NEW(FunExpr)(formal_arg, body);
 }
 
 TEST_CASE( "parse_fun" ) {
-    CHECK( (parse_str("(_fun (x) x*3)(10)"))->interp()->equals(new NumVal(30)));
+    CHECK( (parse_str("(_fun (x) x*3)(10)"))->interp()->equals(NEW(NumVal)(30)));
     CHECK( (parse_str("_fun (money) money*money"))->to_string() == "_fun (money) (money*money)");
     CHECK( (parse_str("_let x = 3 _in x*x"))->interp()->to_string() == "9");
     CHECK( (parse_str("_let x = _fun (x) x*x _in x"))->interp()->to_string() == "_fun (x) (x*x)");
@@ -247,7 +247,7 @@ TEST_CASE( "parse_fun" ) {
 }
 
 // <expr> = <number> | (<expr>)
-Expr* Parse::parse_inner(std::istream &in) {
+PTR(Expr) Parse::parse_inner(std::istream &in) {
     skip_whitespace(in);
     
     int c = in.peek();
@@ -259,7 +259,7 @@ Expr* Parse::parse_inner(std::istream &in) {
     // (<expr>)
     else if (c == '(') {
         consume(in, '(');
-        Expr *e = parse_comparg(in);
+        PTR(Expr) e = parse_comparg(in);
         Parse::skip_whitespace(in);
         c = in.get();
         if (c != ')')
@@ -282,7 +282,7 @@ Expr* Parse::parse_inner(std::istream &in) {
                 consume(in, str[i]);
             }
             
-            return new BoolExpr(true);
+            return NEW(BoolExpr)(true);
         }
         else if (kw == "_false") {
             
@@ -291,7 +291,7 @@ Expr* Parse::parse_inner(std::istream &in) {
                 consume(in, str[i]);
             }
             
-            return new BoolExpr(false);
+            return NEW(BoolExpr)(false);
         }
         else if (kw == "_if") {
             return parse_if(in);
@@ -315,7 +315,7 @@ Expr* Parse::parse_inner(std::istream &in) {
             char c = in.get();
             var += c;
         }
-        return new VarExpr(var);
+        return NEW(VarExpr)(var);
     }
         
     else {
@@ -325,15 +325,15 @@ Expr* Parse::parse_inner(std::istream &in) {
 }
 
 TEST_CASE( "parse_inner" ) {
-    CHECK( (parse_str("_false"))->equals(new BoolExpr(false)));
-    CHECK( (parse_str("_true"))->equals(new BoolExpr(true)));
+    CHECK( (parse_str("_false"))->equals(NEW(BoolExpr)(false)));
+    CHECK( (parse_str("_true"))->equals(NEW(BoolExpr)(true)));
     CHECK_THROWS_WITH(parse_str("_r"), "invalid input");
 }
 
-Expr* Parse::parse_let(std::istream &in) {
+PTR(Expr) Parse::parse_let(std::istream &in) {
     std::string lhs;
-    Expr* rhs = nullptr;
-    Expr* body = nullptr;
+    PTR(Expr) rhs = nullptr;
+    PTR(Expr) body = nullptr;
     bool body_parsed = false;
     
     while (1) {
@@ -380,7 +380,7 @@ Expr* Parse::parse_let(std::istream &in) {
         }
         
         if (body_parsed) {
-            return new LetExpr(lhs, rhs, body);
+            return NEW(LetExpr)(lhs, rhs, body);
         }
     }
 }
@@ -391,7 +391,7 @@ TEST_CASE( "parse" ) {
     CHECK_THROWS_WITH( (parse_str("x"))->interp(), "no value for variable");
     CHECK( (parse_str("money"))->to_string() == "money");
     CHECK( (parse_str("1"))->to_string() == "1");
-    CHECK( (parse_str("1"))->interp()->equals(new NumVal(1)));
+    CHECK( (parse_str("1"))->interp()->equals(NEW(NumVal)(1)));
     
     CHECK( (parse_str("x + 2"))->to_string() == "x + 2");
     CHECK( (parse_str("year + 2"))->to_string() == "year + 2");
@@ -401,34 +401,34 @@ TEST_CASE( "parse" ) {
     CHECK( (parse_str("(2*2)*3"))->to_string() == "(2 * 2) * 3");
     CHECK( (parse_str("(2*2)+2*3"))->to_string() == "2 * 2 + 2 * 3");
     
-    CHECK( (parse_str("2 + (-2)"))->interp()->equals(new NumVal(0)));
-    CHECK( (parse_str("2 * 2 + 3"))->interp()->equals(new NumVal(7)));
-    CHECK( (parse_str("(2 + 2) * 3"))->interp()->equals(new NumVal(12)));
-    CHECK( (parse_str("(-2 + 2) * 3"))->interp()->equals(new NumVal(0)));
-    CHECK( (parse_str("(2 + 2) * (-3)"))->interp()->equals(new NumVal(-12)));
+    CHECK( (parse_str("2 + (-2)"))->interp()->equals(NEW(NumVal)(0)));
+    CHECK( (parse_str("2 * 2 + 3"))->interp()->equals(NEW(NumVal)(7)));
+    CHECK( (parse_str("(2 + 2) * 3"))->interp()->equals(NEW(NumVal)(12)));
+    CHECK( (parse_str("(-2 + 2) * 3"))->interp()->equals(NEW(NumVal)(0)));
+    CHECK( (parse_str("(2 + 2) * (-3)"))->interp()->equals(NEW(NumVal)(-12)));
     
-    CHECK( (parse_str("_let x = 2 _in x + 2"))->interp()->equals(new NumVal(4)));
-    CHECK( (parse_str("_let x = 2 _in x"))->interp()->equals(new NumVal(2)));
-    CHECK( (parse_str("_let x = 2 + 3 _in x"))->interp()->equals(new NumVal(5)));
-    CHECK( (parse_str("_let x = 2 + 3 _in x + 3"))->interp()->equals(new NumVal(8)));
-    CHECK( (parse_str("_let year = 2 _in year + 2"))->interp()->equals(new NumVal(4)));
+    CHECK( (parse_str("_let x = 2 _in x + 2"))->interp()->equals(NEW(NumVal)(4)));
+    CHECK( (parse_str("_let x = 2 _in x"))->interp()->equals(NEW(NumVal)(2)));
+    CHECK( (parse_str("_let x = 2 + 3 _in x"))->interp()->equals(NEW(NumVal)(5)));
+    CHECK( (parse_str("_let x = 2 + 3 _in x + 3"))->interp()->equals(NEW(NumVal)(8)));
+    CHECK( (parse_str("_let year = 2 _in year + 2"))->interp()->equals(NEW(NumVal)(4)));
     
     CHECK( (parse_str("_let x = 2 _in x + 2"))->to_string()
           == "(_let x=2 _in (x+2))");
     CHECK( (parse_str("_let year = 2 _in year + 2"))->to_string()
           == "(_let year=2 _in (year+2))");
     
-    CHECK( (parse_str("2 * (_let x = 2 + 3 _in x + 3)"))->interp()->equals(new NumVal(16)));
+    CHECK( (parse_str("2 * (_let x = 2 + 3 _in x + 3)"))->interp()->equals(NEW(NumVal)(16)));
     
-    CHECK( (parse_str("2 + (2 * (_let x = 2 + 3 _in x + 3))"))->interp()->equals(new NumVal(18)));
+    CHECK( (parse_str("2 + (2 * (_let x = 2 + 3 _in x + 3))"))->interp()->equals(NEW(NumVal)(18)));
     
     CHECK( (parse_str("_let x = 2 + (2 * (_let x = 2 + 3 _in x + 3)) _in x + 2"))
-          ->interp()->equals(new NumVal(20)));
+          ->interp()->equals(NEW(NumVal)(20)));
           
     CHECK( (parse_str("_let x = 2 + (2 * (_let x = 2 + 3 _in x + 3)) _in x * 2"))
-          ->interp()->equals(new NumVal(36)));
+          ->interp()->equals(NEW(NumVal)(36)));
     
-    CHECK( (parse_str("_let var = _let x = 2 + (2 * (_let x = 2 + 3 _in x + 3)) _in x * 2 _in _let x = 4 _in var + x"))->interp()->equals(new NumVal(40)));
+    CHECK( (parse_str("_let var = _let x = 2 + (2 * (_let x = 2 + 3 _in x + 3)) _in x * 2 _in _let x = 4 _in var + x"))->interp()->equals(NEW(NumVal)(40)));
     
     CHECK_THROWS_WITH( parse_str("(1"), "missing closing parenthesis" );
     CHECK_THROWS_WITH( parse_str("$ x = 1 _in x + 1"), "invalid input");

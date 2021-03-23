@@ -10,17 +10,18 @@
 
 #include <stdio.h>
 #include <string>
+#include "pointer.h"
 
 class Expr;
 
-class Val {
+class Val : public std::enable_shared_from_this<Val> {
 public:
-    virtual bool equals(Val *o) = 0;
+    virtual bool equals(PTR(Val) o) = 0;
     //virtual int interp() = 0;
-    virtual Expr* to_expr() = 0;
-    virtual Val* add_to(Val *rhs) = 0;
-    virtual Val* mult_to(Val *rhs) = 0;
-    virtual Val* call(Val *actual_arg) = 0;
+    virtual PTR(Expr) to_expr() = 0;
+    virtual PTR(Val) add_to(PTR(Val) rhs) = 0;
+    virtual PTR(Val) mult_to(PTR(Val) rhs) = 0;
+    virtual PTR(Val) call(PTR(Val) actual_arg) = 0;
     virtual std::string to_string() = 0;
 };
 
@@ -32,14 +33,14 @@ public:
     // constructor
     NumVal(int val);
     
-    bool equals(Val *o);
+    bool equals(PTR(Val) o);
     int interp();
-    Expr* to_expr();
-    Val* add_to(Val *rhs);
-    Val* mult_to(Val *rhs);
+    PTR(Expr) to_expr();
+    PTR(Val) add_to(PTR(Val) rhs);
+    PTR(Val) mult_to(PTR(Val) rhs);
     std::string to_string();
     void print(std::ostream &out);
-    Val* call(Val *actual_arg);
+    PTR(Val) call(PTR(Val) actual_arg);
 };
 
 class BoolVal : public Val {
@@ -49,32 +50,32 @@ public:
     
     BoolVal(bool value);
     
-    bool equals(Val *o);
+    bool equals(PTR(Val) o);
     int interp();
-    Expr* to_expr();
-    Val* add_to(Val *rhs);
-    Val* mult_to(Val *rhs);
+    PTR(Expr) to_expr();
+    PTR(Val) add_to(PTR(Val) rhs);
+    PTR(Val) mult_to(PTR(Val) rhs);
     std::string to_string();
     void print(std::ostream &out);
-    Val* call(Val *actual_arg);
+    PTR(Val) call(PTR(Val) actual_arg);
 };
 
 class FunVal : public Val {
 public:
     
     std::string formal_arg;
-    Expr *body;
+    PTR(Expr) body;
     
-    FunVal(std::string formal_arg, Expr *body);
+    FunVal(std::string formal_arg, PTR(Expr) body);
     
-    bool equals(Val *o);
+    bool equals(PTR(Val) o);
     int interp();
-    Expr* to_expr();
-    Val* add_to(Val *rhs);
-    Val* mult_to(Val *rhs);
+    PTR(Expr) to_expr();
+    PTR(Val) add_to(PTR(Val) rhs);
+    PTR(Val) mult_to(PTR(Val) rhs);
     std::string to_string();
     void print(std::ostream &out);
-    Val* call(Val *actual_arg);
+    PTR(Val) call(PTR(Val) actual_arg);
 };
 
 #endif /* val_hpp */

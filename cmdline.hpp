@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <string>
+#include "pointer.h"
 
 void use_arguments(int argc, const char * argv[]);
 
