@@ -33,9 +33,9 @@ int main(int argc, const char * argv[]) {
     
     //std::cout << (new EqExpr(new BoolExpr(true), new BoolExpr(true)))->to_string() << "\n";
     
-//    Expr *e = parse_string("_let x = 1 _in x + 2");
+//    Expr *expr = parse_string("(_fun (x) x*x)(4)");
 //
-//    std::cout << e->to_string() << "\n";
+//    std::cout << expr->interp()->to_string() << "\n";
     
     return 0;
 }

@@ -20,6 +20,8 @@ public:
     virtual Expr* to_expr() = 0;
     virtual Val* add_to(Val *rhs) = 0;
     virtual Val* mult_to(Val *rhs) = 0;
+    virtual Val* call(Val *actual_arg) = 0;
+    virtual std::string to_string() = 0;
 };
 
 class NumVal : public Val {
@@ -35,6 +37,9 @@ public:
     Expr* to_expr();
     Val* add_to(Val *rhs);
     Val* mult_to(Val *rhs);
+    std::string to_string();
+    void print(std::ostream &out);
+    Val* call(Val *actual_arg);
 };
 
 class BoolVal : public Val {
@@ -49,6 +54,27 @@ public:
     Expr* to_expr();
     Val* add_to(Val *rhs);
     Val* mult_to(Val *rhs);
+    std::string to_string();
+    void print(std::ostream &out);
+    Val* call(Val *actual_arg);
+};
+
+class FunVal : public Val {
+public:
+    
+    std::string formal_arg;
+    Expr *body;
+    
+    FunVal(std::string formal_arg, Expr *body);
+    
+    bool equals(Val *o);
+    int interp();
+    Expr* to_expr();
+    Val* add_to(Val *rhs);
+    Val* mult_to(Val *rhs);
+    std::string to_string();
+    void print(std::ostream &out);
+    Val* call(Val *actual_arg);
 };
 
 #endif /* val_hpp */

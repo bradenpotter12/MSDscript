@@ -60,27 +60,6 @@ TEST_CASE( "IfExpr equals & interp" ) {
     CHECK_THROWS_WITH( (new IfExpr(add_numbers, new BoolExpr(false), new BoolExpr(true)))->interp(), "ifExpr must result in boolean value");
 }
 
-bool IfExpr::has_variable() {
-    return ifExpr->has_variable() || thenExpr->has_variable() || elseExpr->has_variable();
-}
-
-TEST_CASE( " IfExpr has_variable" ) {
-    
-    LetExpr *let_with_var = new LetExpr("x", new NumExpr(new NumVal(1)), new VarExpr("x"));
-    
-    VarExpr *var = new VarExpr("x");
-    
-    EqExpr  *equalTrue = new EqExpr(let_with_var, new NumExpr(new NumVal(1)));
-    
-    CHECK( (new IfExpr(equalTrue, new BoolExpr(false), new BoolExpr(true)))->has_variable() == true);
-    
-    CHECK( (new IfExpr(new BoolExpr(true), new BoolExpr(false), new BoolExpr(true)))->has_variable() == false);
-    
-    CHECK( (new IfExpr(new BoolExpr(true), let_with_var, new BoolExpr(true)))->has_variable() == true);
-    
-    CHECK( (new IfExpr(new BoolExpr(true), new BoolExpr(false), var))->has_variable() == true);
-}
-
 Expr* IfExpr::subst(std::string string, Expr *replacement) {
     return new IfExpr(ifExpr->subst(string, replacement), thenExpr->subst(string, replacement), elseExpr->subst(string, replacement));
 }
@@ -113,6 +92,10 @@ std::string IfExpr::to_string() {
 TEST_CASE( "IfExpr print & to_string" ) {
     
     CHECK( (new IfExpr(new BoolExpr(true), new BoolExpr(false), new BoolExpr(true)))->to_string() == "(_if _true _then _false _else _true)");
+    
+    std::stringstream out("");
+    (new IfExpr(new BoolExpr(true), new BoolExpr(false), new BoolExpr(true)))->pretty_print(out);
+    CHECK( out.str() == "(_if _true _then _false _else _true)");
 }
 
 void IfExpr::pretty_print_at(print_mode_t mode, std::ostream& out) {

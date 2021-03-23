@@ -27,10 +27,6 @@ Val* BoolExpr::interp() {
     return this->boolVal;
 }
 
-bool BoolExpr::has_variable() {
-    return false; // BoolExpr doesn't have a variable
-}
-
 Expr* BoolExpr::subst(std::string string, Expr *replacement) {
     return this; // No variables to substitue
 }
@@ -61,9 +57,7 @@ TEST_CASE( "BoolExpr" ) {
     
     CHECK( (new BoolExpr(true))->interp()->equals(new BoolVal(true)));
     CHECK( (new BoolExpr(false))->interp()->equals(new BoolVal(false)));
-    
-    CHECK( (new BoolExpr(true))->has_variable() == false);
-    
+        
     CHECK( (new BoolExpr(true))->subst("y", new VarExpr("x"))->equals(new BoolExpr(true)));
     
     {
@@ -80,4 +74,10 @@ TEST_CASE( "BoolExpr" ) {
     
     CHECK( (new BoolExpr(true))->to_string() == "_true");
     CHECK( (new BoolExpr(false))->to_string() == "_false");
+    
+    {
+        std::stringstream out("");
+        (new BoolExpr(false))->pretty_print(out);
+        CHECK( (out.str() == "_false"));
+    }
 }

@@ -11,6 +11,7 @@
 #include "catch.hpp"
 #include "expr.hpp"
 #include "parse.hpp"
+#include "val.hpp"
 
 void use_arguments(int argc, const char * argv[])
 {
@@ -45,7 +46,7 @@ void use_arguments(int argc, const char * argv[])
             while (1) {
                 
                 Expr * e = Parse::parse_expr(std::cin);
-                std::cout << e->interp() << std::endl;
+                std::cout << e->interp()->to_string() << std::endl;
                 
                 Parse::skip_whitespace(std::cin);
                 if (std::cin.eof()) {

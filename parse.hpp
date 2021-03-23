@@ -20,6 +20,7 @@ public:
     static Expr* parse_comparg(std::istream &in);
     static Expr* parse_expr(std::istream &in);
     static void skip_whitespace(std::istream &in);
+    static Expr* parse_inner(std::istream &in);
     static Expr* parse_multicand(std::istream &in);
     static Expr* parse_addend(std::istream &in);
     static Expr* parse_let(std::istream &in);

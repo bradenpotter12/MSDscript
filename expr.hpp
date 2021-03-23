@@ -12,10 +12,6 @@ public:
     // Returns an int for the value of an expression
     virtual Val* interp() = 0;
     
-    // Returns true if the expression is a variable or contains
-    // a variable, false otherwise
-    virtual bool has_variable() = 0;
-    
     // If an expression has a variable that matches the string
     // parameter when subst() is called, it will replace the
     // variable in the expression with a different variable
@@ -44,7 +40,6 @@ public:
     
     bool equals(Expr *o);
     Val* interp();
-    bool has_variable();
     Expr* subst(std::string string, Expr *e);
     void print(std::ostream& output);
     std::string to_string();
@@ -63,7 +58,6 @@ public:
     
     bool equals(Expr *o);
     Val* interp();
-    bool has_variable();
     Expr* subst(std::string string, Expr *e);
     void print(std::ostream& output);
     std::string to_string();
@@ -82,7 +76,6 @@ public:
     
     bool equals(Expr *o);
     Val* interp();
-    bool has_variable();
     Expr* subst(std::string string, Expr *e);
     void print(std::ostream& output);
     std::string to_string();
@@ -100,7 +93,6 @@ public:
     
     bool equals(Expr *o);
     Val* interp();
-    bool has_variable();
     Expr* subst(std::string string, Expr *e);
     void print(std::ostream& output);
     std::string to_string();
@@ -119,7 +111,6 @@ public:
     
     bool equals(Expr *o);
     Val* interp();
-    bool has_variable();
     Expr* subst(std::string string, Expr *e);
     void print(std::ostream& output);
     std::string to_string();
@@ -137,7 +128,6 @@ public:
     
     bool equals(Expr *o);
     Val* interp();
-    bool has_variable();
     Expr* subst(std::string string, Expr *e);
     void print(std::ostream& output);
     std::string to_string();
@@ -153,7 +143,6 @@ public:
     
     bool equals(Expr *o);
     Val* interp();
-    bool has_variable();
     Expr* subst(std::string string, Expr *replacement);
     void print(std::ostream& output);
     std::string to_string();
@@ -171,7 +160,38 @@ public:
     
     bool equals(Expr *o);
     Val* interp();
-    bool has_variable();
+    Expr* subst(std::string string, Expr *replacement);
+    void print(std::ostream& output);
+    std::string to_string();
+    void pretty_print_at(print_mode_t mode, std::ostream& out);
+};
+
+class FunExpr : public Expr {
+public:
+    
+    std::string formal_arg;
+    Expr *body;
+    
+    FunExpr(std::string formal_arg, Expr *body);
+    
+    bool equals(Expr *o);
+    Val* interp();
+    Expr* subst(std::string string, Expr *replacement);
+    void print(std::ostream& output);
+    std::string to_string();
+    void pretty_print_at(print_mode_t mode, std::ostream& out);
+};
+
+class CallExpr : public Expr {
+public:
+    
+    Expr *to_be_called;
+    Expr *actual_arg;
+    
+    CallExpr(Expr *to_be_called, Expr *actual_arg);
+    
+    bool equals(Expr *o);
+    Val* interp();
     Expr* subst(std::string string, Expr *replacement);
     void print(std::ostream& output);
     std::string to_string();

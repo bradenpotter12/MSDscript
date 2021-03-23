@@ -49,10 +49,26 @@ Val* NumVal::mult_to(Val *rhs) {
     return this;
 }
 
+std::string NumVal::to_string() {
+    std::stringstream out("");
+    this->print(out);
+    return out.str();
+}
+
+void NumVal::print(std::ostream &out) {
+    out << this->val;
+}
+
+Val* NumVal::call(Val *actual_arg) {
+    throw std::runtime_error("call method cannot be used on NumVal");
+}
+
 TEST_CASE( "equals" ) {
     CHECK( (new NumVal(5))->equals(new NumVal(5)));
     CHECK( (new NumVal(5))->equals(new NumVal(7)) == false);
     CHECK( (new NumVal(5))->equals(new BoolVal(false)) == false);
+    
+    CHECK_THROWS_WITH((new NumVal(4))->call(new NumVal(10)), "call method cannot be used on NumVal");
 }
 
 BoolVal::BoolVal(bool value) {
@@ -83,6 +99,20 @@ Val* BoolVal::mult_to(Val *rhs) {
     throw std::runtime_error("BoolVal cannot be multiplied");
 }
 
+std::string BoolVal::to_string() {
+    std::stringstream out("");
+    this->print(out);
+    return out.str();
+}
+
+void BoolVal::print(std::ostream &out) {
+    out << "_false";
+}
+
+Val* BoolVal::call(Val *actual_arg) {
+    throw std::runtime_error("call method cannot be used on BoolVal");
+}
+
 TEST_CASE( "BoolVal" ) {
     CHECK( (new BoolVal(false))->interp() == false);
     CHECK( (new BoolVal(false))->equals(new BoolVal(false)));
@@ -95,4 +125,7 @@ TEST_CASE( "BoolVal" ) {
     
     CHECK( (new BoolVal(true))->to_expr()->equals(new BoolExpr(true)));
     CHECK( (new NumVal(1))->to_expr()->equals(new NumExpr(new NumVal(1))));
+    
+    CHECK( (new BoolVal(false))->to_string() == "_false");
+    CHECK_THROWS_WITH((new BoolVal(true))->call(new NumVal(8)), "call method cannot be used on BoolVal");
 }
