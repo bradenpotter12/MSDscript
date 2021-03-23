@@ -76,6 +76,16 @@ PTR(Val) FunVal::call(PTR(Val) actual_arg) {
     return body->interp();
 }
 
+TEST_CASE( "FunVal call" ) {
+    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("x")))->call(NEW(NumVal)(10))->to_string() == "10");
+    
+    CHECK( (NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2)))))->call(NEW(NumVal)(10))->to_string() == "12");
+    
+    CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2)))))->call(NEW(NumVal)(10))->to_string() == "20");
+    
+    CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x"))))->call(NEW(NumVal)(10))->to_string() == "100");
+}
+
 TEST_CASE( "CallExpr interp" ) {
     
     CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("x")), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(2)));
