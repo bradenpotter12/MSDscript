@@ -29,7 +29,7 @@ bool EqExpr::equals(PTR(Expr) other_expr) {
     return lhs->equals(c->lhs) && rhs->equals(c->rhs);
 }
 
-PTR(Val)  EqExpr::interp() {
+PTR(Val) EqExpr::interp() {
     
     if (lhs->interp()->equals(rhs->interp()))
         return NEW(BoolVal)(true);
@@ -124,7 +124,7 @@ void Expr::pretty_print(std::ostream& out) {
 }
 
 // Num Constructor implementation
-    NumExpr::NumExpr(PTR(Val) val) {
+NumExpr::NumExpr(PTR(Val) val) {
     this->val = val;
 }
 
@@ -140,7 +140,7 @@ bool NumExpr::equals(PTR(Expr) other_expr) {
 }
 
 // Num Interp implementation
-PTR(Val)  NumExpr::interp() {
+PTR(Val) NumExpr::interp() {
     return this->val;
 }
 

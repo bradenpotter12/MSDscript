@@ -36,17 +36,13 @@ PTR(Expr) NumVal::to_expr() {
 PTR(Val) NumVal::add_to(PTR(Val) rhs) {
     PTR(NumVal) rhsNumVal = CAST(NumVal)(rhs);
     
-    this->val = this->val + rhsNumVal->val;
-    
-    return THIS;
+    return NEW(NumVal)(this->val + rhsNumVal->val);
 }
 
 PTR(Val) NumVal::mult_to(PTR(Val) rhs) {
     PTR(NumVal) rhsNumVal = CAST(NumVal)(rhs);
     
-    this->val = this->val * rhsNumVal->val;
-    
-    return THIS;
+    return NEW(NumVal)(this->val * rhsNumVal->val);
 }
 
 std::string NumVal::to_string() {

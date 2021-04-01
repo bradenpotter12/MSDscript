@@ -30,15 +30,6 @@ TEST_CASE( "FunVal equals" ) {
     CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y")))->equals(NEW(BoolVal)(true)) == false);
 }
 
-// I don't think this is needed
-int FunVal::interp() {
-    PTR(NumVal) c = CAST(NumVal)(body->interp());
-    if (c == NULL) {
-        throw std::runtime_error("Expr should interp to NumVal");
-    }
-    return c->interp();
-}
-
 PTR(Expr) FunVal::to_expr() {
     return NEW(FunExpr)(formal_arg, body);
 }

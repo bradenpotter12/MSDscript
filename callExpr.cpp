@@ -37,8 +37,6 @@ TEST_CASE( "CallExpr Subst" ) {
     CHECK( (NEW(CallExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("y")))->subst("y", NEW(NumExpr)(NEW(NumVal)(3)))->equals(NEW(CallExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(3)))));
 }
 
-
-
 void CallExpr::print(std::ostream& out) {
     out << '(';
     to_be_called->print(out);

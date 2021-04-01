@@ -39,7 +39,7 @@ PTR(Expr) FunExpr::subst(std::string string, PTR(Expr) replacement) {
     if (string == formal_arg) {
         return THIS;
     }
-    return NEW(FunExpr)(formal_arg, body->subst(string, replacement)); // TODO:  subst supposed to substitue formal_arg and body?
+    return NEW(FunExpr)(formal_arg, body->subst(string, replacement)); 
 }
 
 TEST_CASE( "FunExpr subst" ) {

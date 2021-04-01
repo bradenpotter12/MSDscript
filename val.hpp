@@ -69,7 +69,6 @@ public:
     FunVal(std::string formal_arg, PTR(Expr) body);
     
     bool equals(PTR(Val) o);
-    int interp();
     PTR(Expr) to_expr();
     PTR(Val) add_to(PTR(Val) rhs);
     PTR(Val) mult_to(PTR(Val) rhs);
