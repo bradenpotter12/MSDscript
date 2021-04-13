@@ -28,9 +28,9 @@ bool FunVal::equals(PTR(Val) other_val) {
 
 TEST_CASE( "FunVal equals" ) {
     
-    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y")))->equals(NEW(FunVal)("x", NEW(VarExpr)("y"))));
+    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y"), NEW(EmptyEnv)()))->equals(NEW(FunVal)("x", NEW(VarExpr)("y"), NEW(EmptyEnv)())));
     
-    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y")))->equals(NEW(BoolVal)(true)) == false);
+    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y"), NEW(EmptyEnv)()))->equals(NEW(BoolVal)(true)) == false);
 }
 
 PTR(Expr) FunVal::to_expr() {
@@ -47,9 +47,9 @@ PTR(Val) FunVal::mult_to(PTR(Val) rhs) {
 
 TEST_CASE( "FunVal add_to & mult_to") {
     
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(VarExpr)("y")))->add_to(NEW(NumVal)(2)), "FunVal's cannot be added");
+    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(VarExpr)("y"), NEW(EmptyEnv)()))->add_to(NEW(NumVal)(2)), "FunVal's cannot be added");
     
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(VarExpr)("y")))->mult_to(NEW(NumVal)(2)), "FunVal's cannot be multiplied");
+    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(VarExpr)("y"), NEW(EmptyEnv)()))->mult_to(NEW(NumVal)(2)), "FunVal's cannot be multiplied");
 }
 
 std::string FunVal::to_string() {
@@ -69,13 +69,13 @@ PTR(Val) FunVal::call(PTR(Val) actual_arg) {
 }
 
 TEST_CASE( "FunVal call" ) {
-    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("x")))->call(NEW(NumVal)(10))->to_string() == "10");
+    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("x"), NEW(EmptyEnv)()))->call(NEW(NumVal)(10))->to_string() == "10");
     
-    CHECK( (NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2)))))->call(NEW(NumVal)(10))->to_string() == "12");
+    CHECK( (NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2))), NEW(EmptyEnv)()))->call(NEW(NumVal)(10))->to_string() == "12");
     
-    CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2)))))->call(NEW(NumVal)(10))->to_string() == "20");
+    CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2))), NEW(EmptyEnv)()))->call(NEW(NumVal)(10))->to_string() == "20");
     
-    CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x"))))->call(NEW(NumVal)(10))->to_string() == "100");
+    CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x")), NEW(EmptyEnv)()))->call(NEW(NumVal)(10))->to_string() == "100");
 }
 
 

@@ -301,7 +301,7 @@ bool VarExpr::equals(PTR(Expr) other_expr) {
 // Variable Interp implementation
 PTR(Val)  VarExpr::interp(PTR(Env) env) {
     
-    return NEW(NumVal)(env->lookup(this->string));
+    return env->lookup(this->string);
     
 }
 
