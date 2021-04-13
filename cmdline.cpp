@@ -46,7 +46,7 @@ void use_arguments(int argc, const char * argv[])
             while (1) {
                 
                 PTR(Expr) e = Parse::parse_expr(std::cin);
-                std::cout << e->interp()->to_string() << std::endl;
+                std::cout << e->interp(NEW(EmptyEnv)())->to_string() << std::endl;
                 
                 Parse::skip_whitespace(std::cin);
                 if (std::cin.eof()) {

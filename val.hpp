@@ -11,8 +11,10 @@
 #include <stdio.h>
 #include <string>
 #include "pointer.h"
+//#include "env.hpp"
 
 class Expr;
+class Env;
 
 class Val : public std::enable_shared_from_this<Val> {
 public:
@@ -65,8 +67,9 @@ public:
     
     std::string formal_arg;
     PTR(Expr) body;
+    PTR(Env) env;
     
-    FunVal(std::string formal_arg, PTR(Expr) body);
+    FunVal(std::string formal_arg, PTR(Expr) body, PTR(Env) env);
     
     bool equals(PTR(Val) o);
     PTR(Expr) to_expr();

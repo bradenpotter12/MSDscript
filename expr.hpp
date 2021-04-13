@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sstream>
 #include "pointer.h"
+#include "env.hpp"
 
 class Val;
 
@@ -11,7 +12,7 @@ public:
     virtual bool equals(PTR(Expr)) = 0;
     
     // Returns an int for the value of an expression
-    virtual PTR(Val) interp() = 0;
+    virtual PTR(Val) interp(PTR(Env) env) = 0;
     
     // If an expression has a variable that matches the string
     // parameter when subst() is called, it will replace the
@@ -39,7 +40,7 @@ public:
     NumExpr(PTR(Val) val);
     
     bool equals(PTR(Expr) other_expr);
-    PTR(Val) interp();
+    PTR(Val) interp(PTR(Env) env);
     PTR(Expr) subst(std::string string, PTR(Expr) e);
     void print(std::ostream& output);
     std::string to_string();
@@ -57,7 +58,7 @@ public:
     AddExpr(PTR(Expr) lhs, PTR(Expr) rhs);
     
     bool equals(PTR(Expr) other_expr);
-    PTR(Val) interp();
+    PTR(Val) interp(PTR(Env) env);
     PTR(Expr) subst(std::string string, PTR(Expr) e);
     void print(std::ostream& output);
     std::string to_string();
@@ -75,7 +76,7 @@ public:
     MultExpr(PTR(Expr) lhs, PTR(Expr) rhs);
     
     bool equals(PTR(Expr) other_expr);
-    PTR(Val) interp();
+    PTR(Val) interp(PTR(Env) env);
     PTR(Expr) subst(std::string string, PTR(Expr) e);
     void print(std::ostream& output);
     std::string to_string();
@@ -92,7 +93,7 @@ public:
     VarExpr(std::string string);
     
     bool equals(PTR(Expr) other_expr);
-    PTR(Val) interp();
+    PTR(Val) interp(PTR(Env) env);
     PTR(Expr) subst(std::string string, PTR(Expr) e);
     void print(std::ostream& output);
     std::string to_string();
@@ -110,7 +111,7 @@ public:
     LetExpr(std::string lhs, PTR(Expr) rhs, PTR(Expr) body);
     
     bool equals(PTR(Expr) other_expr);
-    PTR(Val) interp();
+    PTR(Val) interp(PTR(Env) env);
     PTR(Expr) subst(std::string string, PTR(Expr) e);
     void print(std::ostream& output);
     std::string to_string();
@@ -127,7 +128,7 @@ public:
     EqExpr(PTR(Expr) lhs, PTR(Expr) rhs);
     
     bool equals(PTR(Expr) other_expr);
-    PTR(Val) interp();
+    PTR(Val) interp(PTR(Env) env);
     PTR(Expr) subst(std::string string, PTR(Expr) e);
     void print(std::ostream& output);
     std::string to_string();
@@ -142,7 +143,7 @@ public:
     BoolExpr(bool val);
     
     bool equals(PTR(Expr) other_expr);
-    PTR(Val) interp();
+    PTR(Val) interp(PTR(Env) env);
     PTR(Expr) subst(std::string string, PTR(Expr) replacement);
     void print(std::ostream& output);
     std::string to_string();
@@ -159,7 +160,7 @@ public:
     IfExpr(PTR(Expr) ifExpr, PTR(Expr) thenExpr, PTR(Expr) elseExpr);
     
     bool equals(PTR(Expr) other_expr);
-    PTR(Val) interp();
+    PTR(Val) interp(PTR(Env) env);
     PTR(Expr) subst(std::string string, PTR(Expr) replacement);
     void print(std::ostream& output);
     std::string to_string();
@@ -175,7 +176,7 @@ public:
     FunExpr(std::string formal_arg, PTR(Expr) body);
     
     bool equals(PTR(Expr) other_expr);
-    PTR(Val) interp();
+    PTR(Val) interp(PTR(Env) env);
     PTR(Expr) subst(std::string string, PTR(Expr) replacement);
     void print(std::ostream& output);
     std::string to_string();
@@ -191,7 +192,7 @@ public:
     CallExpr(PTR(Expr) to_be_called, PTR(Expr) actual_arg);
     
     bool equals(PTR(Expr) other_expr);
-    PTR(Val) interp();
+    PTR(Val) interp(PTR(Env) env);
     PTR(Expr) subst(std::string string, PTR(Expr) replacement);
     void print(std::ostream& output);
     std::string to_string();

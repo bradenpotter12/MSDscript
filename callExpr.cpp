@@ -23,8 +23,17 @@ bool CallExpr::equals(PTR(Expr) other_expr) {
     return to_be_called->equals(c->to_be_called) && actual_arg->equals(c->actual_arg);
 }
 
-PTR(Val) CallExpr::interp() {
-    return to_be_called->interp()->call(actual_arg->interp());
+PTR(Val) CallExpr::interp(PTR(Env) env) {
+    return to_be_called->interp(env)->call(actual_arg->interp(env));
+}
+
+TEST_CASE( "CallExpr interp" ) {
+    
+    CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("x")), NEW(NumExpr)(NEW(NumVal)(2))))->interp(NEW(EmptyEnv)())->equals(NEW(NumVal)(2)));
+    
+    CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x"))), NEW(NumExpr)(NEW(NumVal)(2))))->interp(NEW(EmptyEnv)())->equals(NEW(NumVal)(4)));
+    
+    CHECK_THROWS_WITH( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("y")), NEW(NumExpr)(NEW(NumVal)(2))))->interp(NEW(EmptyEnv)())->equals(NEW(NumVal)(2)), "no value for variable");
 }
 
 PTR(Expr) CallExpr::subst(std::string string, PTR(Expr) replacement) {

@@ -23,7 +23,7 @@ bool BoolExpr::equals(PTR(Expr) other_expr) {
     return this->boolVal->equals(c->boolVal);
 }
 
-PTR(Val) BoolExpr::interp() {
+PTR(Val) BoolExpr::interp(PTR(Env) env) {
     return this->boolVal;
 }
 
@@ -55,8 +55,8 @@ TEST_CASE( "BoolExpr" ) {
     CHECK( ((NEW(BoolExpr)(true))->equals(NEW(BoolExpr)(false))) == false);
     CHECK( ((NEW(BoolExpr)(true))->equals(NEW(NumExpr)(NEW(NumVal)(1)))) == false);
     
-    CHECK( (NEW(BoolExpr)(true))->interp()->equals(NEW(BoolVal)(true)));
-    CHECK( (NEW(BoolExpr)(false))->interp()->equals(NEW(BoolVal)(false)));
+    CHECK( (NEW(BoolExpr)(true))->interp(NEW(EmptyEnv)())->equals(NEW(BoolVal)(true)));
+    CHECK( (NEW(BoolExpr)(false))->interp(NEW(EmptyEnv)())->equals(NEW(BoolVal)(false)));
         
     CHECK( (NEW(BoolExpr)(true))->subst("y", NEW(VarExpr)("x"))->equals(NEW(BoolExpr)(true)));
     

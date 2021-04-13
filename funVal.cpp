@@ -9,10 +9,13 @@
 #include "val.hpp"
 #include "expr.hpp"
 #include "catch.hpp"
+#include "env.hpp"
 
-FunVal::FunVal(std::string formal_arg, PTR(Expr) body) {
+
+FunVal::FunVal(std::string formal_arg, PTR(Expr) body, PTR(Env) env) {
     this->formal_arg = formal_arg;
     this->body = body;
+    this->env = env;
 }
 
 bool FunVal::equals(PTR(Val) other_val) {
@@ -62,9 +65,7 @@ void FunVal::print(std::ostream &out) {
 }
 
 PTR(Val) FunVal::call(PTR(Val) actual_arg) {
-    body = body->subst(formal_arg, actual_arg->to_expr());
-    
-    return body->interp();
+    return body->interp(NEW(ExtendedEnv)(formal_arg, actual_arg, env));
 }
 
 TEST_CASE( "FunVal call" ) {
@@ -77,12 +78,5 @@ TEST_CASE( "FunVal call" ) {
     CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x"))))->call(NEW(NumVal)(10))->to_string() == "100");
 }
 
-TEST_CASE( "CallExpr interp" ) {
-    
-    CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("x")), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(2)));
-    
-    CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x"))), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(4)));
-    
-    CHECK_THROWS_WITH( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("y")), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(2)), "no value for variable");
-}
+
 

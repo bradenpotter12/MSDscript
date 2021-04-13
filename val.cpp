@@ -8,6 +8,8 @@
 #include "val.hpp"
 #include "expr.hpp"
 #include "catch.hpp"
+#include <limits.h>
+#include <cmath>
 
 
 // constructor
@@ -36,13 +38,24 @@ PTR(Expr) NumVal::to_expr() {
 PTR(Val) NumVal::add_to(PTR(Val) rhs) {
     PTR(NumVal) rhsNumVal = CAST(NumVal)(rhs);
     
-    return NEW(NumVal)(this->val + rhsNumVal->val);
+    int tempNum = (unsigned)this->val;
+    int absValueOfThis = std::abs(tempNum);
+    
+    if (absValueOfThis > INT_MAX - (unsigned)rhsNumVal->val) {
+        throw std::runtime_error("Arithmetic overflow, input numbers result in answer that is too large");
+    }
+    
+    return NEW(NumVal)((unsigned)this->val + (unsigned)rhsNumVal->val);
 }
 
 PTR(Val) NumVal::mult_to(PTR(Val) rhs) {
     PTR(NumVal) rhsNumVal = CAST(NumVal)(rhs);
     
-    return NEW(NumVal)(this->val * rhsNumVal->val);
+    if ((unsigned)this->val > INT_MAX / rhsNumVal->val) {
+        throw std::runtime_error("Arithmetic overflow, input numbers result in answer that is too large");
+    }
+    
+    return NEW(NumVal)((unsigned)this->val * (unsigned)rhsNumVal->val);
 }
 
 std::string NumVal::to_string() {

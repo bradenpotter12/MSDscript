@@ -31,8 +31,8 @@ TEST_CASE( "FunExpr equals" ) {
     CHECK( out.str() == "_fun (x) y");
 }
 
-PTR(Val)  FunExpr::interp() {
-    return NEW(FunVal)(formal_arg, body);
+PTR(Val)  FunExpr::interp(PTR(Env) env) {
+    return NEW(FunVal)(formal_arg, body, env);
 }
 
 PTR(Expr) FunExpr::subst(std::string string, PTR(Expr) replacement) {
