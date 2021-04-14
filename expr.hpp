@@ -6,7 +6,6 @@
 
 class Val;
 
-// Expr Class
 class Expr : public std::enable_shared_from_this<Expr> {
 public:
     virtual bool equals(PTR(Expr)) = 0;
@@ -31,7 +30,6 @@ public:
     virtual void pretty_print_at(print_mode_t mode, std::ostream& out) = 0;
 };
 
-// Num Class
 class NumExpr : public Expr {
 public:
     PTR(Val) val;
@@ -48,7 +46,6 @@ public:
     
 };
 
-// Add Class
 class AddExpr : public Expr {
 public:
     PTR(Expr) lhs;
@@ -66,7 +63,6 @@ public:
     
 };
 
-// Mult Class
 class MultExpr : public Expr {
 public:
     PTR(Expr) lhs;
@@ -84,7 +80,6 @@ public:
     
 };
 
-// Variable Class
 class VarExpr : public Expr {
 public:
     std::string string;
@@ -101,13 +96,13 @@ public:
     
 };
 
-// _let Class
 class LetExpr : public Expr {
 public:
     std::string lhs;
     PTR(Expr) rhs;
     PTR(Expr) body;
     
+    // constructor
     LetExpr(std::string lhs, PTR(Expr) rhs, PTR(Expr) body);
     
     bool equals(PTR(Expr) other_expr);
@@ -125,6 +120,7 @@ public:
     PTR(Expr) lhs;
     PTR(Expr) rhs;
     
+    // constructor
     EqExpr(PTR(Expr) lhs, PTR(Expr) rhs);
     
     bool equals(PTR(Expr) other_expr);
@@ -140,6 +136,7 @@ public:
     
     PTR(Val) boolVal;
     
+    // constructor
     BoolExpr(bool val);
     
     bool equals(PTR(Expr) other_expr);
@@ -157,6 +154,7 @@ public:
     PTR(Expr) thenExpr;
     PTR(Expr) elseExpr;
     
+    // constructor
     IfExpr(PTR(Expr) ifExpr, PTR(Expr) thenExpr, PTR(Expr) elseExpr);
     
     bool equals(PTR(Expr) other_expr);
@@ -173,6 +171,7 @@ public:
     std::string formal_arg;
     PTR(Expr) body;
     
+    // constructor
     FunExpr(std::string formal_arg, PTR(Expr) body);
     
     bool equals(PTR(Expr) other_expr);
@@ -189,6 +188,7 @@ public:
     PTR(Expr) to_be_called;
     PTR(Expr) actual_arg;
     
+    // constructor
     CallExpr(PTR(Expr) to_be_called, PTR(Expr) actual_arg);
     
     bool equals(PTR(Expr) other_expr);

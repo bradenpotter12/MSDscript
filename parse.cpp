@@ -395,7 +395,6 @@ PTR(Expr) Parse::parse_let(std::istream &in) {
 TEST_CASE( "parse" ) {
     
     CHECK( (parse_str("x"))->to_string() == "x");
-    CHECK_THROWS_WITH( (parse_str("x"))->interp(NEW(EmptyEnv)()), "no value for variable");
     CHECK( (parse_str("money"))->to_string() == "money");
     CHECK( (parse_str("1"))->to_string() == "1");
     CHECK( (parse_str("1"))->interp(NEW(EmptyEnv)())->equals(NEW(NumVal)(1)));

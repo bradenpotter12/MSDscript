@@ -18,6 +18,7 @@ ExtendedEnv::ExtendedEnv(std::string name, PTR(Val) val, PTR(Env) rest) {
 }
 
 PTR(Val) ExtendedEnv::lookup(std::string find_name) {
+    
     if (find_name == name)
         return val;
     else
