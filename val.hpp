@@ -25,7 +25,7 @@ public:
     virtual PTR(Val) mult_to(PTR(Val) rhs) = 0;
     virtual PTR(Val) call(PTR(Val) actual_arg) = 0;
     virtual std::string to_string() = 0;
-    void call_step(PTR(Val) actual_arg_val, PTR(Cont) rest);
+    virtual void call_step(PTR(Val) actual_arg_val, PTR(Cont) rest);
 };
 
 class NumVal : public Val {

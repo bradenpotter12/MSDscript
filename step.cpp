@@ -10,6 +10,7 @@
 #include "cont.hpp"
 #include "expr.hpp"
 #include "val.hpp"
+#include "catch.hpp"
 
 Step::mode_t Step::mode;
 PTR(Expr) Step::expr;
@@ -38,4 +39,15 @@ PTR(Val) Step::interp_by_steps(PTR(Expr) e) {
             }
         }
     }
+}
+
+TEST_CASE( "interp_by_steps" ) {
+    PTR(NumExpr) number1 = NEW(NumExpr)(NEW(NumVal)(1));
+    PTR(NumExpr) number2 = NEW(NumExpr)(NEW(NumVal)(2));
+    PTR(NumExpr) number3 = NEW(NumExpr)(NEW(NumVal)(3));
+    PTR(IfExpr) ifTestTrue = NEW(IfExpr)(NEW(EqExpr)(number1, number1), number2, number3);
+    PTR(IfExpr) ifTestFalse = NEW(IfExpr)(NEW(EqExpr)(number1, number2), number2, number3);
+    
+    CHECK(Step::interp_by_steps(ifTestTrue)->to_string() == "2");
+    CHECK(Step::interp_by_steps(ifTestFalse)->to_string() == "3");
 }

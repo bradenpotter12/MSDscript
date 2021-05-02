@@ -113,7 +113,7 @@ void IfBranchCont::step_continue()
     PTR(Val) test_val = Step::val;
     Step::mode = Step::interp_mode;
     
-    if (Step::expr->equals(NEW(BoolExpr)(true))) {
+    if (test_val->equals(NEW(BoolVal)(true))) {
         Step::expr = then_part;
     }
     else {
@@ -159,4 +159,3 @@ CallCont::CallCont(PTR(Val) to_be_called_val, PTR(Cont) rest) {
 void CallCont::step_continue() {
     to_be_called_val->call_step(Step::val, rest);
 }
-
