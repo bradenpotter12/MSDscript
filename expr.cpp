@@ -48,6 +48,14 @@ void NumExpr::step_interp() {  // return == continue_mode with value and current
     Step::cont = Step::cont; /* no-op */
 }
 
+TEST_CASE( "NumExpr::step_interp" ) {
+    PTR(Expr) lhs = NEW(NumExpr)(NEW(NumVal)(1000000));
+    PTR(Expr) rhs = NEW(NumExpr)(NEW(NumVal)(1000000));
+    PTR(AddExpr) two_mill = NEW(AddExpr)(lhs, rhs);
+    
+    CHECK(Step::interp_by_steps(two_mill)->to_string() == "2000000");
+}
+
 PTR(Expr) NumExpr::subst(std::string string, PTR(Expr) replacement) {
     return THIS;
 }

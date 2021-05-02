@@ -13,6 +13,7 @@
 #include "parse.hpp"
 #include "val.hpp"
 #include "env.hpp"
+#include "step.hpp"
 
 void use_arguments(int argc, const char * argv[])
 {
@@ -48,6 +49,18 @@ void use_arguments(int argc, const char * argv[])
                 
                 PTR(Expr) e = Parse::parse_expr(std::cin);
                 std::cout << e->interp(NEW(EmptyEnv)())->to_string() << std::endl;
+                
+                Parse::skip_whitespace(std::cin);
+                if (std::cin.eof()) {
+                    break;
+                }
+            }
+        }
+        else if (mainParameter == "--step") {
+            while (1) {
+                
+                PTR(Expr) e = Parse::parse_expr(std::cin);
+                std::cout << Step::interp_by_steps(e)->to_string() << std::endl;
                 
                 Parse::skip_whitespace(std::cin);
                 if (std::cin.eof()) {

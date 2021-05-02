@@ -33,6 +33,6 @@ public:
     
     static PTR(Cont) cont;  /* all modes */
     
-    PTR(Val) interp_by_steps(PTR(Expr) e);
+    static PTR(Val) interp_by_steps(PTR(Expr) e);
 };
 #endif /* step_hpp */

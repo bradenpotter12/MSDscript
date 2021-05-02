@@ -38,6 +38,4 @@ PTR(Val) Step::interp_by_steps(PTR(Expr) e) {
             }
         }
     }
-    
-    return 0;
 }
