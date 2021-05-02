@@ -21,7 +21,7 @@ public:
 
 class EmptyEnv : public Env {
 public:
-    PTR(Val) lookup(std::string find_name); 
+    PTR(Val) lookup(std::string find_name);
 };
 
 class ExtendedEnv : public Env {
