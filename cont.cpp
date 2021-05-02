@@ -113,7 +113,7 @@ void IfBranchCont::step_continue()
     PTR(Val) test_val = Step::val;
     Step::mode = Step::interp_mode;
     
-    if (Step::expr->equals(NEW(BoolExpr)(true))) {
+    if (test_val->equals(NEW(BoolVal)(true))) {
         Step::expr = then_part;
     }
     else {
