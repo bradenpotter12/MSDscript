@@ -22,7 +22,7 @@ public:
 
 class DoneCont : public Cont {
 public:
-    
+
     void step_continue();
 };
 
