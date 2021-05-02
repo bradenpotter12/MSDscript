@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <sstream>
 #include "pointer.h"
-#include "env.hpp"
 
+class Env;
 class Val;
 
 class Expr : public std::enable_shared_from_this<Expr> {

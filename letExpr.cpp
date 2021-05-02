@@ -9,6 +9,9 @@
 #include "expr.hpp"
 #include "catch.hpp"
 #include "step.hpp"
+#include "env.hpp"
+#include "cont.hpp"
+#include "val.hpp"
 
 LetExpr::LetExpr(std::string lhs, PTR(Expr) rhs, PTR(Expr) body) {
     this->lhs = lhs;

@@ -10,9 +10,11 @@
 
 #include <stdio.h>
 #include "pointer.h"
-#include "expr.hpp"
-#include "cont.hpp"
 
+class Expr;
+class Cont;
+class Env;
+class Val;
 
 class Step {
 public:

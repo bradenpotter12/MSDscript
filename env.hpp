@@ -9,8 +9,8 @@
 #define env_hpp
 
 #include <stdio.h>
+#include <iostream>
 #include "pointer.h"
-#include "val.hpp"
 
 class Val;
 

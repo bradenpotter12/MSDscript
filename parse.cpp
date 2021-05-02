@@ -11,6 +11,7 @@
 #include "expr.hpp"
 #include <limits.h>
 #include <string>
+#include "env.hpp"
 
 // Parse wrapper for testing
 PTR(Expr) parse_str(std::string s) {

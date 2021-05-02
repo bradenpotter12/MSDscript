@@ -10,6 +10,8 @@
 #include "val.hpp"
 #include "catch.hpp"
 #include "step.hpp"
+#include "env.hpp"
+#include "cont.hpp"
 
 CallExpr::CallExpr(PTR(Expr) to_be_called, PTR(Expr) actual_arg) {
     this->to_be_called = to_be_called;
@@ -25,7 +27,9 @@ bool CallExpr::equals(PTR(Expr) other_expr) {
 }
 
 PTR(Val) CallExpr::interp(PTR(Env) env) {
-    return to_be_called->interp(env)->call(actual_arg->interp(env));
+    PTR(Val) to_be_called_val = to_be_called->interp(env);
+    PTR(Val) actual_arg_val = actual_arg->interp(env);
+    return to_be_called_val->call(actual_arg_val);
 }
 
 TEST_CASE( "CallExpr interp" ) {

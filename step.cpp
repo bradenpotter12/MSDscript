@@ -8,6 +8,8 @@
 #include "step.hpp"
 #include "env.hpp"
 #include "cont.hpp"
+#include "expr.hpp"
+#include "val.hpp"
 
 Step::mode_t Step::mode;
 PTR(Expr) Step::expr;
@@ -20,7 +22,7 @@ PTR(Val) Step::interp_by_steps(PTR(Expr) e) {
     Step::mode = Step::interp_mode;
     Step::expr = e;
     Step::env = NEW(EmptyEnv)();
-    Step::val = 0;
+    Step::val = nullptr;
     Step::cont = Cont::done;
     
     while (1) {

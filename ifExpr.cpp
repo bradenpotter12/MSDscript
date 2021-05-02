@@ -9,6 +9,9 @@
 #include "expr.hpp"
 #include "catch.hpp"
 #include "val.hpp"
+#include "step.hpp"
+#include "env.hpp"
+#include "cont.hpp"
 
 
 IfExpr::IfExpr(PTR(Expr) ifExpr, PTR(Expr) thenExpr, PTR(Expr) elseExpr) {
@@ -58,6 +61,13 @@ TEST_CASE( "IfExpr equals & interp" ) {
     PTR(AddExpr) add_numbers = NEW(AddExpr)(NEW(NumExpr)(NEW(NumVal)(1)), NEW(NumExpr)(NEW(NumVal)(2)));
     
     CHECK_THROWS_WITH( (NEW(IfExpr)(add_numbers, NEW(BoolExpr)(false), NEW(BoolExpr)(true)))->interp(NEW(EmptyEnv)()), "ifExpr must result in boolean value");
+}
+
+void IfExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = ifExpr;
+    Step::env = Step::env;
+    Step::cont = NEW(IfBranchCont)(thenExpr, elseExpr, Step::env, Step::cont);
 }
 
 PTR(Expr) IfExpr::subst(std::string string, PTR(Expr) replacement) {

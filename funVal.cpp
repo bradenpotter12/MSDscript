@@ -10,6 +10,8 @@
 #include "expr.hpp"
 #include "catch.hpp"
 #include "env.hpp"
+#include "step.hpp"
+#include "cont.hpp"
 
 
 FunVal::FunVal(std::string formal_arg, PTR(Expr) body, PTR(Env) env) {
@@ -76,6 +78,17 @@ TEST_CASE( "FunVal call" ) {
     CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2))), NEW(EmptyEnv)()))->call(NEW(NumVal)(10))->to_string() == "20");
     
     CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x")), NEW(EmptyEnv)()))->call(NEW(NumVal)(10))->to_string() == "100");
+}
+
+void Val::call_step(PTR(Val) actual_arg_val, PTR(Cont) rest) {
+    // Overwritten in FunVal
+}
+
+void FunVal::call_step(PTR(Val) actual_arg_val, PTR(Cont) rest) {
+    Step::mode = Step::interp_mode;
+    Step::expr = body;
+    Step::env = NEW(ExtendedEnv)(formal_arg, actual_arg_val, env);
+    Step::cont = rest;
 }
 
 

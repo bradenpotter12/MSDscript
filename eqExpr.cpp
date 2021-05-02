@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include "expr.hpp"
 #include "catch.hpp"
+#include "step.hpp"
+#include "val.hpp"
+#include "cont.hpp"
 
 EqExpr::EqExpr(PTR(Expr) lhs, PTR(Expr) rhs) {
     this->lhs = lhs;
@@ -28,6 +31,13 @@ PTR(Val) EqExpr::interp(PTR(Env) env) {
         return NEW(BoolVal)(true);
     
     return NEW(BoolVal)(false);
+}
+
+void EqExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = lhs;
+    Step::env = Step::env;
+    Step::cont = NEW(RightThenCompCont)(rhs, Step::env, Step::cont);
 }
 
 PTR(Expr) EqExpr::subst(std::string string, PTR(Expr)  replacement) {

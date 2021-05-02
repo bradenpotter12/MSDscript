@@ -20,12 +20,6 @@ PTR(Expr) parse_string(std::string s) {
     return Parse::parse_expr(in);
 }
 
-int add_one(int * number) {
-    int value = *number;
-    value++;
-    return value;
-}
-
 int main(int argc, const char * argv[]) {
     use_arguments(argc, argv);
     

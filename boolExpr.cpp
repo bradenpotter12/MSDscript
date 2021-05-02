@@ -9,6 +9,11 @@
 #include "expr.hpp"
 #include "val.hpp"
 #include "catch.hpp"
+#include "step.hpp"
+#include "env.hpp"
+#include "cont.hpp"
+
+
 
 BoolExpr::BoolExpr(bool val) {
     
@@ -25,6 +30,12 @@ bool BoolExpr::equals(PTR(Expr) other_expr) {
 
 PTR(Val) BoolExpr::interp(PTR(Env) env) {
     return this->boolVal;
+}
+
+void BoolExpr::step_interp() {
+    Step::mode = Step::continue_mode;
+    Step::val = NEW(BoolVal)(boolVal);
+    Step::cont = Step::cont;
 }
 
 PTR(Expr) BoolExpr::subst(std::string string, PTR(Expr) replacement) {

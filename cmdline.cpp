@@ -12,6 +12,7 @@
 #include "expr.hpp"
 #include "parse.hpp"
 #include "val.hpp"
+#include "env.hpp"
 
 void use_arguments(int argc, const char * argv[])
 {

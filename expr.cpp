@@ -14,6 +14,8 @@
 #include "val.hpp"
 #include "parse.hpp"
 #include "step.hpp"
+#include "env.hpp"
+#include "cont.hpp"
 
 #define Var Variable
 
@@ -42,7 +44,7 @@ PTR(Val) NumExpr::interp(PTR(Env) env) {
 
 void NumExpr::step_interp() {  // return == continue_mode with value and current continuation
     Step::mode = Step::continue_mode;
-    Step::val = NEW(NumVal)(val);
+    Step::val = this->val; // not sure how to make this work, my NumVal constructor takes int
     Step::cont = Step::cont; /* no-op */
 }
 
@@ -156,6 +158,13 @@ PTR(Val)  MultExpr::interp(PTR(Env) env) {
     return lhs->mult_to(rhs);
 }
 
+void MultExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = lhs;
+    Step::env = Step::env;
+    Step::cont = NEW(RightThenMultCont)(rhs, Step::env, Step::cont);
+}
+
 PTR(Expr) MultExpr::subst(std::string string, PTR(Expr) replacement) {
     
     return NEW(MultExpr)(this->lhs->subst(string, replacement), this->rhs->subst(string, replacement));
@@ -207,6 +216,12 @@ bool VarExpr::equals(PTR(Expr) other_expr) {
 PTR(Val)  VarExpr::interp(PTR(Env) env) {
     
     return env->lookup(this->string);
+}
+
+void VarExpr::step_interp() {
+    Step::mode = Step::continue_mode;
+    Step::val = Step::env->lookup(string);
+    Step::cont = Step::cont;
 }
 
 TEST_CASE( "VarExpr interp" ) {

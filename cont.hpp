@@ -14,7 +14,7 @@
 
 class Expr;
 
-class Cont {
+class Cont : public std::enable_shared_from_this<Cont> {
 public:
     virtual void step_continue() = 0;
     static PTR(Cont) done;
@@ -22,7 +22,7 @@ public:
 
 class DoneCont : public Cont {
 public:
-    DoneCont();
+    
     void step_continue();
 };
 
@@ -42,6 +42,44 @@ public:
     PTR(Cont) rest;
     
     AddCont(PTR(Val) lhs_val, PTR(Cont) rest);
+    void step_continue();
+};
+
+class RightThenMultCont : public Cont {
+public:
+    PTR(Expr) rhs;
+    PTR(Env) env;
+    PTR(Cont) rest;
+    
+    RightThenMultCont(PTR(Expr) rhs, PTR(Env) env, PTR(Cont) rest);
+    void step_continue();
+};
+
+class MultCont : public Cont {
+public:
+    PTR(Val) lhs_val;
+    PTR(Cont) rest;
+    
+    MultCont(PTR(Val) lhs_val, PTR(Cont) rest);
+    void step_continue();
+};
+
+class RightThenCompCont : public Cont {
+public:
+    PTR(Expr) rhs;
+    PTR(Env) env;
+    PTR(Cont) rest;
+    
+    RightThenCompCont(PTR(Expr) rhs, PTR(Env) env, PTR(Cont) rest);
+    void step_continue();
+};
+
+class CompCont : public Cont {
+public:
+    PTR(Val) lhs_val;
+    PTR(Cont) rest;
+    
+    CompCont(PTR(Val) lhs_val, PTR(Cont) rest);
     void step_continue();
 };
 
@@ -68,6 +106,7 @@ public:
 };
 
 class ArgThenCallCont : public Cont {
+public:
     PTR(Expr) actual_arg;
     PTR(Env) env;
     PTR(Cont) rest;
@@ -75,4 +114,14 @@ class ArgThenCallCont : public Cont {
     ArgThenCallCont(PTR(Expr) actual_arg, PTR(Env) env, PTR(Cont) rest);
     void step_continue();
 };
+
+class CallCont : public Cont {
+public:
+    PTR(Val) to_be_called_val;
+    PTR(Cont) rest;
+    
+    CallCont(PTR(Val) to_be_called_val, PTR(Cont) rest);
+    void step_continue();
+};
+
 #endif /* cont_hpp */
