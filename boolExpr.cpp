@@ -9,6 +9,11 @@
 #include "expr.hpp"
 #include "val.hpp"
 #include "catch.hpp"
+#include "step.hpp"
+#include "env.hpp"
+#include "cont.hpp"
+
+
 
 BoolExpr::BoolExpr(bool val) {
     
@@ -23,8 +28,14 @@ bool BoolExpr::equals(PTR(Expr) other_expr) {
     return this->boolVal->equals(c->boolVal);
 }
 
-PTR(Val) BoolExpr::interp() {
+PTR(Val) BoolExpr::interp(PTR(Env) env) {
     return this->boolVal;
+}
+
+void BoolExpr::step_interp() {
+    Step::mode = Step::continue_mode;
+    Step::val = NEW(BoolVal)(boolVal);
+    Step::cont = Step::cont;
 }
 
 PTR(Expr) BoolExpr::subst(std::string string, PTR(Expr) replacement) {
@@ -55,8 +66,8 @@ TEST_CASE( "BoolExpr" ) {
     CHECK( ((NEW(BoolExpr)(true))->equals(NEW(BoolExpr)(false))) == false);
     CHECK( ((NEW(BoolExpr)(true))->equals(NEW(NumExpr)(NEW(NumVal)(1)))) == false);
     
-    CHECK( (NEW(BoolExpr)(true))->interp()->equals(NEW(BoolVal)(true)));
-    CHECK( (NEW(BoolExpr)(false))->interp()->equals(NEW(BoolVal)(false)));
+    CHECK( (NEW(BoolExpr)(true))->interp(NEW(EmptyEnv)())->equals(NEW(BoolVal)(true)));
+    CHECK( (NEW(BoolExpr)(false))->interp(NEW(EmptyEnv)())->equals(NEW(BoolVal)(false)));
         
     CHECK( (NEW(BoolExpr)(true))->subst("y", NEW(VarExpr)("x"))->equals(NEW(BoolExpr)(true)));
     

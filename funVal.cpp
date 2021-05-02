@@ -9,10 +9,15 @@
 #include "val.hpp"
 #include "expr.hpp"
 #include "catch.hpp"
+#include "env.hpp"
+#include "step.hpp"
+#include "cont.hpp"
 
-FunVal::FunVal(std::string formal_arg, PTR(Expr) body) {
+
+FunVal::FunVal(std::string formal_arg, PTR(Expr) body, PTR(Env) env) {
     this->formal_arg = formal_arg;
     this->body = body;
+    this->env = env;
 }
 
 bool FunVal::equals(PTR(Val) other_val) {
@@ -25,9 +30,9 @@ bool FunVal::equals(PTR(Val) other_val) {
 
 TEST_CASE( "FunVal equals" ) {
     
-    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y")))->equals(NEW(FunVal)("x", NEW(VarExpr)("y"))));
+    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y"), NEW(EmptyEnv)()))->equals(NEW(FunVal)("x", NEW(VarExpr)("y"), NEW(EmptyEnv)())));
     
-    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y")))->equals(NEW(BoolVal)(true)) == false);
+    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("y"), NEW(EmptyEnv)()))->equals(NEW(BoolVal)(true)) == false);
 }
 
 PTR(Expr) FunVal::to_expr() {
@@ -44,9 +49,9 @@ PTR(Val) FunVal::mult_to(PTR(Val) rhs) {
 
 TEST_CASE( "FunVal add_to & mult_to") {
     
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(VarExpr)("y")))->add_to(NEW(NumVal)(2)), "FunVal's cannot be added");
+    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(VarExpr)("y"), NEW(EmptyEnv)()))->add_to(NEW(NumVal)(2)), "FunVal's cannot be added");
     
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(VarExpr)("y")))->mult_to(NEW(NumVal)(2)), "FunVal's cannot be multiplied");
+    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(VarExpr)("y"), NEW(EmptyEnv)()))->mult_to(NEW(NumVal)(2)), "FunVal's cannot be multiplied");
 }
 
 std::string FunVal::to_string() {
@@ -62,27 +67,29 @@ void FunVal::print(std::ostream &out) {
 }
 
 PTR(Val) FunVal::call(PTR(Val) actual_arg) {
-    body = body->subst(formal_arg, actual_arg->to_expr());
-    
-    return body->interp();
+    return body->interp(NEW(ExtendedEnv)(formal_arg, actual_arg, env));
 }
 
 TEST_CASE( "FunVal call" ) {
-    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("x")))->call(NEW(NumVal)(10))->to_string() == "10");
+    CHECK( (NEW(FunVal)("x", NEW(VarExpr)("x"), NEW(EmptyEnv)()))->call(NEW(NumVal)(10))->to_string() == "10");
     
-    CHECK( (NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2)))))->call(NEW(NumVal)(10))->to_string() == "12");
+    CHECK( (NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2))), NEW(EmptyEnv)()))->call(NEW(NumVal)(10))->to_string() == "12");
     
-    CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2)))))->call(NEW(NumVal)(10))->to_string() == "20");
+    CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(NEW(NumVal)(2))), NEW(EmptyEnv)()))->call(NEW(NumVal)(10))->to_string() == "20");
     
-    CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x"))))->call(NEW(NumVal)(10))->to_string() == "100");
+    CHECK( (NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x")), NEW(EmptyEnv)()))->call(NEW(NumVal)(10))->to_string() == "100");
 }
 
-TEST_CASE( "CallExpr interp" ) {
-    
-    CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("x")), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(2)));
-    
-    CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x"))), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(4)));
-    
-    CHECK_THROWS_WITH( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("y")), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(2)), "no value for variable");
+void Val::call_step(PTR(Val) actual_arg_val, PTR(Cont) rest) {
+    // Overwritten in FunVal
 }
+
+void FunVal::call_step(PTR(Val) actual_arg_val, PTR(Cont) rest) {
+    Step::mode = Step::interp_mode;
+    Step::expr = body;
+    Step::env = NEW(ExtendedEnv)(formal_arg, actual_arg_val, env);
+    Step::cont = rest;
+}
+
+
 

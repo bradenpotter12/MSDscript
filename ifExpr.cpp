@@ -9,6 +9,9 @@
 #include "expr.hpp"
 #include "catch.hpp"
 #include "val.hpp"
+#include "step.hpp"
+#include "env.hpp"
+#include "cont.hpp"
 
 
 IfExpr::IfExpr(PTR(Expr) ifExpr, PTR(Expr) thenExpr, PTR(Expr) elseExpr) {
@@ -25,13 +28,13 @@ bool IfExpr::equals(PTR(Expr) other_expr) {
     return ifExpr->equals(c->ifExpr) && thenExpr->equals(c->thenExpr) && elseExpr->equals(c->elseExpr);
 }
 
-PTR(Val)  IfExpr::interp() {
+PTR(Val)  IfExpr::interp(PTR(Env) env) {
     
-    if (ifExpr->interp()->equals(NEW(BoolVal)(true))) {
-        return thenExpr->interp();
+    if (ifExpr->interp(env)->equals(NEW(BoolVal)(true))) {
+        return thenExpr->interp(env);
     }
-    else if (ifExpr->interp()->equals(NEW(BoolVal)(false)))
-        return elseExpr->interp();
+    else if (ifExpr->interp(env)->equals(NEW(BoolVal)(false)))
+        return elseExpr->interp(env);
     
     throw std::runtime_error("ifExpr must result in boolean value");
 }
@@ -41,23 +44,30 @@ TEST_CASE( "IfExpr equals & interp" ) {
     
     CHECK( (NEW(IfExpr)(NEW(BoolExpr)(true), NEW(BoolExpr)(true), NEW(BoolExpr)(true)))->equals(NEW(BoolExpr)(true)) == false);
     
-    CHECK( (NEW(IfExpr)(NEW(BoolExpr)(true), NEW(BoolExpr)(false), NEW(BoolExpr)(true)))->interp()->equals(NEW(BoolVal)(false)));
+    CHECK( (NEW(IfExpr)(NEW(BoolExpr)(true), NEW(BoolExpr)(false), NEW(BoolExpr)(true)))->interp(NEW(EmptyEnv)())->equals(NEW(BoolVal)(false)));
     
-    CHECK( (NEW(IfExpr)(NEW(BoolExpr)(false), NEW(BoolExpr)(false), NEW(BoolExpr)(true)))->interp()->equals(NEW(BoolVal)(true)));
+    CHECK( (NEW(IfExpr)(NEW(BoolExpr)(false), NEW(BoolExpr)(false), NEW(BoolExpr)(true)))->interp(NEW(EmptyEnv)())->equals(NEW(BoolVal)(true)));
     
-    CHECK( (NEW(IfExpr)(NEW(BoolExpr)(false), NEW(BoolExpr)(false), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(2)));
+    CHECK( (NEW(IfExpr)(NEW(BoolExpr)(false), NEW(BoolExpr)(false), NEW(NumExpr)(NEW(NumVal)(2))))->interp(NEW(EmptyEnv)())->equals(NEW(NumVal)(2)));
     
     PTR(EqExpr) eqTrue = NEW(EqExpr)(NEW(NumExpr)(NEW(NumVal)(1)), NEW(NumExpr)(NEW(NumVal)(1)));
     
-    CHECK( (NEW(IfExpr)(eqTrue, NEW(BoolExpr)(false), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(BoolVal)(false)));
+    CHECK( (NEW(IfExpr)(eqTrue, NEW(BoolExpr)(false), NEW(NumExpr)(NEW(NumVal)(2))))->interp(NEW(EmptyEnv)())->equals(NEW(BoolVal)(false)));
     
     PTR(EqExpr) eqFalse = NEW(EqExpr)(NEW(NumExpr)(NEW(NumVal)(1)), NEW(NumExpr)(NEW(NumVal)(2)));
     
-    CHECK( (NEW(IfExpr)(eqFalse, NEW(BoolExpr)(false), NEW(NumExpr)(NEW(NumVal)(2))))->interp()->equals(NEW(NumVal)(2)));
+    CHECK( (NEW(IfExpr)(eqFalse, NEW(BoolExpr)(false), NEW(NumExpr)(NEW(NumVal)(2))))->interp(NEW(EmptyEnv)())->equals(NEW(NumVal)(2)));
     
     PTR(AddExpr) add_numbers = NEW(AddExpr)(NEW(NumExpr)(NEW(NumVal)(1)), NEW(NumExpr)(NEW(NumVal)(2)));
     
-    CHECK_THROWS_WITH( (NEW(IfExpr)(add_numbers, NEW(BoolExpr)(false), NEW(BoolExpr)(true)))->interp(), "ifExpr must result in boolean value");
+    CHECK_THROWS_WITH( (NEW(IfExpr)(add_numbers, NEW(BoolExpr)(false), NEW(BoolExpr)(true)))->interp(NEW(EmptyEnv)()), "ifExpr must result in boolean value");
+}
+
+void IfExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = ifExpr;
+    Step::env = Step::env;
+    Step::cont = NEW(IfBranchCont)(thenExpr, elseExpr, Step::env, Step::cont);
 }
 
 PTR(Expr) IfExpr::subst(std::string string, PTR(Expr) replacement) {

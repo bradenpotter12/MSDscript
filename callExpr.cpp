@@ -9,6 +9,9 @@
 #include "expr.hpp"
 #include "val.hpp"
 #include "catch.hpp"
+#include "step.hpp"
+#include "env.hpp"
+#include "cont.hpp"
 
 CallExpr::CallExpr(PTR(Expr) to_be_called, PTR(Expr) actual_arg) {
     this->to_be_called = to_be_called;
@@ -23,8 +26,23 @@ bool CallExpr::equals(PTR(Expr) other_expr) {
     return to_be_called->equals(c->to_be_called) && actual_arg->equals(c->actual_arg);
 }
 
-PTR(Val) CallExpr::interp() {
-    return to_be_called->interp()->call(actual_arg->interp());
+PTR(Val) CallExpr::interp(PTR(Env) env) {
+    PTR(Val) to_be_called_val = to_be_called->interp(env);
+    PTR(Val) actual_arg_val = actual_arg->interp(env);
+    return to_be_called_val->call(actual_arg_val);
+}
+
+TEST_CASE( "CallExpr interp" ) {
+    
+    CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("x")), NEW(NumExpr)(NEW(NumVal)(2))))->interp(NEW(EmptyEnv)())->equals(NEW(NumVal)(2)));
+    
+    CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x"))), NEW(NumExpr)(NEW(NumVal)(2))))->interp(NEW(EmptyEnv)())->equals(NEW(NumVal)(4)));
+}
+
+void CallExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = to_be_called;
+    Step::cont = NEW(ArgThenCallCont)(actual_arg, Step::env, Step::cont);
 }
 
 PTR(Expr) CallExpr::subst(std::string string, PTR(Expr) replacement) {

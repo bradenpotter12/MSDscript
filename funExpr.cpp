@@ -9,6 +9,9 @@
 #include "expr.hpp"
 #include "val.hpp"
 #include "catch.hpp"
+#include "step.hpp"
+#include "env.hpp"
+#include "cont.hpp"
 
 FunExpr::FunExpr(std::string formal_arg, PTR(Expr) body) {
     this->formal_arg = formal_arg;
@@ -31,8 +34,14 @@ TEST_CASE( "FunExpr equals" ) {
     CHECK( out.str() == "_fun (x) y");
 }
 
-PTR(Val)  FunExpr::interp() {
-    return NEW(FunVal)(formal_arg, body);
+PTR(Val)  FunExpr::interp(PTR(Env) env) {
+    return NEW(FunVal)(formal_arg, body, env);
+}
+
+void FunExpr::step_interp() {
+    Step::mode = Step::continue_mode;
+    Step::val = NEW(FunVal)(formal_arg, body, Step::env);
+    Step::cont = Step::cont;
 }
 
 PTR(Expr) FunExpr::subst(std::string string, PTR(Expr) replacement) {

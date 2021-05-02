@@ -9,12 +9,12 @@
 #define env_hpp
 
 #include <stdio.h>
+#include <iostream>
 #include "pointer.h"
-#include "val.hpp"
 
 class Val;
 
-class Env {
+class Env : public std::enable_shared_from_this<Env> {
 public:
     virtual PTR(Val) lookup(std::string find_name) = 0;
 };

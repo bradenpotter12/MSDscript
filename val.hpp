@@ -13,6 +13,8 @@
 #include "pointer.h"
 
 class Expr;
+class Env;
+class Cont;
 
 class Val : public std::enable_shared_from_this<Val> {
 public:
@@ -23,6 +25,7 @@ public:
     virtual PTR(Val) mult_to(PTR(Val) rhs) = 0;
     virtual PTR(Val) call(PTR(Val) actual_arg) = 0;
     virtual std::string to_string() = 0;
+    void call_step(PTR(Val) actual_arg_val, PTR(Cont) rest);
 };
 
 class NumVal : public Val {
@@ -58,6 +61,7 @@ public:
     std::string to_string();
     void print(std::ostream &out);
     PTR(Val) call(PTR(Val) actual_arg);
+    
 };
 
 class FunVal : public Val {
@@ -65,8 +69,9 @@ public:
     
     std::string formal_arg;
     PTR(Expr) body;
+    PTR(Env) env;
     
-    FunVal(std::string formal_arg, PTR(Expr) body);
+    FunVal(std::string formal_arg, PTR(Expr) body, PTR(Env) env);
     
     bool equals(PTR(Val) o);
     PTR(Expr) to_expr();
@@ -75,6 +80,8 @@ public:
     std::string to_string();
     void print(std::ostream &out);
     PTR(Val) call(PTR(Val) actual_arg);
+    void call_step(PTR(Val) actual_arg_val, PTR(Cont) rest);
+    
 };
 
 #endif /* val_hpp */
