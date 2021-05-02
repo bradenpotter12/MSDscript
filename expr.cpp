@@ -13,6 +13,7 @@
 #include <iostream>
 #include "val.hpp"
 #include "parse.hpp"
+#include "step.hpp"
 
 #define Var Variable
 
@@ -77,8 +78,16 @@ bool AddExpr::equals(PTR(Expr) other_expr) {
 }
 
 PTR(Val) AddExpr::interp(PTR(Env) env) {
-    
-    return lhs->interp(env)->add_to(rhs->interp(env));
+    PTR(Val) lhs_val = lhs->interp(env);
+    PTR(Val) rhs_val = rhs->interp(env);
+    return lhs_val->add_to(rhs_val);
+}
+
+void AddExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = lhs;
+    Step::env = Step::env; /* no-op, could omit */
+    Step::cont = NEW(RightThenAddCont)(rhs, Step::env, Step::cont);
 }
 
 PTR(Expr) AddExpr::subst(std::string string, PTR(Expr) replacement) {
@@ -192,7 +201,10 @@ bool VarExpr::equals(PTR(Expr) other_expr) {
 PTR(Val)  VarExpr::interp(PTR(Env) env) {
     
     return env->lookup(this->string);
-    
+}
+
+TEST_CASE( "VarExpr interp" ) {
+    CHECK( (NEW(VarExpr)("x"))->interp(NEW(ExtendedEnv)("x", NEW(NumVal)(3), NEW(EmptyEnv)()))->to_string() == "3");
 }
 
 PTR(Expr) VarExpr::subst(std::string string, PTR(Expr) replacement) {

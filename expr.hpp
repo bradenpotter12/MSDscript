@@ -28,6 +28,8 @@ public:
     virtual std::string to_string() = 0;
     void pretty_print(std::ostream& out);
     virtual void pretty_print_at(print_mode_t mode, std::ostream& out) = 0;
+    
+    virtual void step_interp() = 0;
 };
 
 class NumExpr : public Expr {
@@ -43,6 +45,7 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    void step_interp();
     
 };
 
@@ -60,6 +63,7 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    void step_interp();
     
 };
 
@@ -77,6 +81,7 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    void step_interp();
     
 };
 
@@ -93,6 +98,7 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    void step_interp();
     
 };
 
@@ -111,6 +117,7 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    void step_interp();
     
 };
 
@@ -129,6 +136,8 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    void step_interp();
+    
 };
 
 class BoolExpr : public Expr {
@@ -145,6 +154,8 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    void step_interp();
+    
 };
 
 class IfExpr : public Expr {
@@ -163,6 +174,8 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    void step_interp();
+    
 };
 
 class FunExpr : public Expr {
@@ -180,6 +193,8 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    void step_interp();
+    
 };
 
 class CallExpr : public Expr {
@@ -197,5 +212,7 @@ public:
     void print(std::ostream& output);
     std::string to_string();
     void pretty_print_at(print_mode_t mode, std::ostream& out);
+    void step_interp();
+    
 };
 
