@@ -41,6 +41,7 @@ public:
     PTR(Val) lhs_val;
     PTR(Cont) rest;
     
+    AddCont(PTR(Val) lhs_val, PTR(Cont) rest);
     void step_continue();
 };
 
@@ -51,6 +52,27 @@ public:
     PTR(Env) env;
     PTR(Cont) rest;
     
+    IfBranchCont(PTR(Expr) then_part, PTR(Expr) else_part, PTR(Env) env, PTR(Cont) rest);
+    void step_continue();
+};
+
+class LetBodyCont : public Cont {
+public:
+    std::string var;
+    PTR(Expr) body;
+    PTR(Env) env;
+    PTR(Cont) rest;
+    
+    LetBodyCont(std::string var, PTR(Expr) body, PTR(Env) env, PTR(Cont) rest);
+    void step_continue();
+};
+
+class ArgThenCallCont : public Cont {
+    PTR(Expr) actual_arg;
+    PTR(Env) env;
+    PTR(Cont) rest;
+    
+    ArgThenCallCont(PTR(Expr) actual_arg, PTR(Env) env, PTR(Cont) rest);
     void step_continue();
 };
 #endif /* cont_hpp */

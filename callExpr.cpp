@@ -9,6 +9,7 @@
 #include "expr.hpp"
 #include "val.hpp"
 #include "catch.hpp"
+#include "step.hpp"
 
 CallExpr::CallExpr(PTR(Expr) to_be_called, PTR(Expr) actual_arg) {
     this->to_be_called = to_be_called;
@@ -32,6 +33,12 @@ TEST_CASE( "CallExpr interp" ) {
     CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("x")), NEW(NumExpr)(NEW(NumVal)(2))))->interp(NEW(EmptyEnv)())->equals(NEW(NumVal)(2)));
     
     CHECK( (NEW(CallExpr)(NEW(FunExpr)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x"))), NEW(NumExpr)(NEW(NumVal)(2))))->interp(NEW(EmptyEnv)())->equals(NEW(NumVal)(4)));
+}
+
+void CallExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = to_be_called;
+    Step::cont = NEW(ArgThenCallCont)(actual_arg, Step::env, Step::cont);
 }
 
 PTR(Expr) CallExpr::subst(std::string string, PTR(Expr) replacement) {

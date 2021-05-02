@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "expr.hpp"
 #include "catch.hpp"
+#include "step.hpp"
 
 LetExpr::LetExpr(std::string lhs, PTR(Expr) rhs, PTR(Expr) body) {
     this->lhs = lhs;
@@ -32,6 +33,13 @@ PTR(Val)  LetExpr::interp(PTR(Env) env) {
     PTR(Env) new_env = NEW(ExtendedEnv)(lhs, rhs_val, env);
     
     return body->interp(new_env);
+}
+
+void LetExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = rhs;
+    Step::env = Step::env;
+    Step::cont = NEW(LetBodyCont)(lhs, body, Step::env, Step::cont);
 }
 
 PTR(Expr) LetExpr::subst(std::string string, PTR(Expr) r) {

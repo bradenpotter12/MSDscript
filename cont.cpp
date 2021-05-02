@@ -17,7 +17,20 @@ void IfBranchCont::step_continue()
     Step::mode = Step::interp_mode;
     
     if (Step::expr->equals(NEW(BoolExpr)(true))) {
-        <#statements#>
+        Step::expr = then_part;
     }
+    else {
+        Step::expr = else_part;
+    }
+    Step::env = env;
+    Step::cont = rest;
+}
+
+void LetBodyCont::step_continue() {
+    Step::mode = Step::interp_mode;
+    Step::expr = body;
+    Step::env = NEW(ExtendedEnv)(var, Step::val, env);
+    
+    Step::cont = rest;
 }
 

@@ -40,6 +40,12 @@ PTR(Val) NumExpr::interp(PTR(Env) env) {
     return this->val;
 }
 
+void NumExpr::step_interp() {  // return == continue_mode with value and current continuation
+    Step::mode = Step::continue_mode;
+    Step::val = NEW(NumVal)(val);
+    Step::cont = Step::cont; /* no-op */
+}
+
 PTR(Expr) NumExpr::subst(std::string string, PTR(Expr) replacement) {
     return THIS;
 }
