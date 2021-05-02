@@ -115,7 +115,11 @@ std::string BoolVal::to_string() {
 }
 
 void BoolVal::print(std::ostream &out) {
-    out << "_false";
+    if (this->value == true) {
+        out << "_true";
+    }
+    else
+        out << "_false";
 }
 
 PTR(Val) BoolVal::call(PTR(Val) actual_arg) {
