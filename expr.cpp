@@ -5,7 +5,7 @@
 //  Created by Braden Potter on 1/26/21.
 //
 
-#include <stdio.h>
+//#include <stdio.h>
 #include "expr.hpp"
 #include <stdexcept>
 #include "catch.hpp"
